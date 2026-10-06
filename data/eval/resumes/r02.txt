@@ -1,0 +1,16 @@
+Minjun Example
+Email: minjun@example.com
+
+EDUCATION
+B.S. Computer Science, Pusan National University (expected 2027)
+
+TECHNICAL SKILLS
+Java, Spring Boot, JPA, MySQL, REST API, Git, Docker, Linux
+Data structures and algorithms (Baekjoon gold)
+
+PROJECTS
+- Campus marketplace backend: Spring Boot + JPA + MySQL, REST API with JWT auth, deployed with Docker on AWS EC2.
+- Chat server with WebSocket (team of 4), code reviews on GitHub.
+
+EXPERIENCE
+Teaching assistant, Object-Oriented Programming course (1 semester)

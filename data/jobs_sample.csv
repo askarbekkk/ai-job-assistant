@@ -1,0 +1,77 @@
+job_id,company,title,employment_type,location,korean_required,description,source_url,collected_date
+J0001,Bluewave Analytics (sample),Data Analyst Intern,Internship,Seoul,Basic,"Join our analytics team for a 6-month internship. You will build weekly reports and dashboards for the product team.
+Requirements: Python, SQL, Pandas, Tableau.
+Preferred: experience with A/B testing and basic statistics.",https://example.com/jobs/J0001,2026-10-01
+J0002,Hanriver AI Lab (sample),Machine Learning Engineer Intern,Internship,Daejeon,None,"Work with researchers to train and evaluate deep learning models for industrial inspection. English is the working language.
+Requirements: Python, PyTorch, solid understanding of machine learning and deep learning.
+Preferred: computer vision projects, Docker, Git.",https://example.com/jobs/J0002,2026-10-01
+J0003,Gwanghwa Commerce (sample),Junior Backend Developer,Full-time,Seoul,Fluent,"Develop and maintain the order and payment APIs of our e-commerce platform.
+Requirements: Java, Spring Boot, JPA, MySQL, REST API design.
+Preferred: AWS, Docker, Redis.",https://example.com/jobs/J0003,2026-10-01
+J0004,Pangyo Mobility (sample),Frontend Developer Intern,Internship,Seongnam,Basic,"Build web dashboards for our ride-sharing operations team.
+Requirements: JavaScript, TypeScript, React, HTML, CSS.
+Preferred: Next.js, Figma, Jest.",https://example.com/jobs/J0004,2026-10-02
+J0005,Busan Port Data Center (sample),Data Engineer (Entry-level),Full-time,Busan,Basic,"Design and operate batch data pipelines for port logistics data.
+Requirements: Python, SQL, Apache Airflow, Apache Spark, ETL pipelines.
+Preferred: AWS, Kafka, Docker.",https://example.com/jobs/J0005,2026-10-02
+J0006,Daedeok Robotics (sample),Robotics Software Intern,Internship,Daejeon,None,"Develop navigation software for warehouse robots.
+Requirements: C++, ROS, Linux, Python.
+Preferred: computer vision, OpenCV.",https://example.com/jobs/J0006,2026-10-02
+J0007,Malssam Labs (sample),NLP Research Intern,Internship,Seoul,None,"Research and prototype Korean-English language models for customer support.
+Requirements: Python, NLP, PyTorch, Hugging Face Transformers.
+Preferred: experience with LLMs and retrieval-augmented generation (RAG).",https://example.com/jobs/J0007,2026-10-03
+J0008,Sejong FinTech (sample),Junior Data Scientist,Full-time,Seoul,Fluent,"Build credit risk models and present results to business teams.
+Requirements: Python, machine learning, scikit-learn, SQL, statistics.
+Preferred: XGBoost, Tableau.",https://example.com/jobs/J0008,2026-10-03
+J0009,Jeju Travel Platform (sample),Android Developer Intern,Internship,Jeju,Basic,"Help build new features for our travel booking Android app.
+Requirements: Kotlin, Android development, Git.
+Preferred: Jetpack Compose, Firebase.",https://example.com/jobs/J0009,2026-10-03
+J0010,Incheon Logistics (sample),iOS Developer (New Grad),Full-time,Incheon,Fluent,"Develop the iOS app used by our delivery drivers.
+Requirements: Swift, iOS development, SwiftUI.
+Preferred: CI/CD experience.",https://example.com/jobs/J0010,2026-10-04
+J0011,Global SaaS Korea (sample),DevOps Engineer Intern,Internship,Seoul,None,"Automate infrastructure for a global SaaS product. Team language is English.
+Requirements: Linux, Docker, Kubernetes, AWS, CI/CD.
+Preferred: Terraform, Prometheus, Grafana.",https://example.com/jobs/J0011,2026-10-04
+J0012,누리데이터 (sample),데이터 분석 인턴,Internship,Seoul,Fluent,"고객 행동 데이터를 분석하여 마케팅 팀의 의사결정을 지원합니다.
+자격요건: Python 또는 R을 활용한 데이터 분석 경험, SQL 활용 능력, 엑셀 활용 능력.
+우대사항: Tableau 또는 Power BI 사용 경험, 통계학 전공자.",https://example.com/jobs/J0012,2026-10-04
+J0013,Gangnam EduTech (sample),Full-stack Developer Intern,Internship,Seoul,Basic,"Build features for an online learning platform end to end.
+Requirements: JavaScript, Node.js, React, MongoDB.
+Preferred: TypeScript, AWS, Docker.",https://example.com/jobs/J0013,2026-10-05
+J0014,Ulsan Smart Factory (sample),Embedded Software Engineer (Entry),Full-time,Ulsan,Fluent,"Develop firmware for factory sensors and controllers.
+Requirements: C language, C++, embedded systems, Linux.
+Preferred: Python, IoT.",https://example.com/jobs/J0014,2026-10-05
+J0015,Seoul Vision AI (sample),Computer Vision Engineer Intern,Internship,Seoul,None,"Train and deploy object detection models for retail analytics.
+Requirements: Python, computer vision, PyTorch, OpenCV.
+Preferred: YOLO, CUDA, Docker.",https://example.com/jobs/J0015,2026-10-05
+J0016,Mapo Marketing Analytics (sample),Marketing Data Analyst Intern,Internship,Seoul,Basic,"Analyze campaign performance and website traffic.
+Requirements: Excel, SQL, Google Analytics, data analysis.
+Preferred: Python, A/B testing, digital marketing.",https://example.com/jobs/J0016,2026-10-06
+J0017,Daejeon AI Research Institute (sample),AI Research Assistant (LLM),Internship,Daejeon,None,"Assist researchers in evaluating and fine-tuning large language models. Papers are written in English.
+Requirements: Python, large language models, PyTorch, deep learning.
+Preferred: fine-tuning (LoRA), Hugging Face, English writing.",https://example.com/jobs/J0017,2026-10-06
+J0018,Pangyo Game Studio (sample),Game Client Developer Intern,Internship,Seongnam,Basic,"Implement gameplay features for a mobile RPG.
+Requirements: C#, Unity, object-oriented programming.
+Preferred: Git, Unreal Engine.",https://example.com/jobs/J0018,2026-10-06
+J0019,케이뱅크디지털 (sample),주니어 백엔드 개발자,Full-time,Seoul,Fluent,"뱅킹 서비스의 백엔드 API를 개발합니다.
+자격요건: Java, Spring Boot 기반 개발 경험, Oracle 또는 MySQL 데이터베이스 사용 경험, Git.
+우대사항: MSA, Kafka, 쿠버네티스 경험.",https://example.com/jobs/J0019,2026-10-06
+J0020,Global Cloud Korea (sample),Solutions Engineer Intern,Internship,Remote,None,"Help customers design cloud architectures. Customer meetings are in English.
+Requirements: Python, AWS, networking (TCP/IP), Linux, English.
+Preferred: Terraform, strong communication skills.",https://example.com/jobs/J0020,2026-10-06
+J0021,Busan Shipping Tech (sample),Software Engineer (Python) New Grad,Full-time,Busan,Basic,"Build internal tools for shipping schedule management.
+Requirements: Python, Django, PostgreSQL, REST API.
+Preferred: Docker, Redis, unit testing.",https://example.com/jobs/J0021,2026-10-06
+J0022,Seongsu Fashion Commerce (sample),Recommender Systems Intern,Internship,Seoul,Basic,"Improve product recommendations for a fashion shopping app.
+Requirements: Python, recommender systems, machine learning, SQL.
+Preferred: Spark, BigQuery.",https://example.com/jobs/J0022,2026-10-06
+J0023,Suwon Electronics (sample),QA Automation Intern,Internship,Suwon,Basic,"Write automated tests for consumer electronics companion apps.
+Requirements: Python, Selenium, unit testing, Jira.
+Preferred: Jenkins, Postman.",https://example.com/jobs/J0023,2026-10-06
+J0024,Remote ML Startup (sample),MLOps Intern,Internship,Remote,None,"Help us ship models to production: packaging, serving and monitoring.
+Requirements: Python, MLOps, Docker, Git.
+Preferred: Kubernetes, FastAPI.",https://example.com/jobs/J0024,2026-10-06
+J0025,Sinchon UX Studio (sample),UI/UX Design Intern,Internship,Seoul,Fluent,"Design mobile app screens with our product team.
+Requirements: Figma, UI/UX design, Adobe Photoshop.
+Preferred: HTML, CSS.",https://example.com/jobs/J0025,2026-10-06
+J0026,Bluewave Analytics (sample),Data Analyst Intern,Internship,Seoul,Basic,"Duplicate of J0001 collected by another team member (same URL) — removed by the import script.",https://example.com/jobs/J0001,2026-10-06

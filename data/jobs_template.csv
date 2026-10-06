@@ -1,0 +1,2 @@
+job_id,company,title,employment_type,location,korean_required,description,source_url,collected_date
+J0001,Example Corp,Data Analyst Intern,Internship,Daejeon,None,"Duties: ... Requirements: Python, SQL ... Preferred: Tableau ...",https://example.com/jobs/123,2026-10-15

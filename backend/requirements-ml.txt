@@ -1,0 +1,3 @@
+# Optional: Sentence-BERT text similarity (Section 10, step 3).
+# Without it the backend falls back to a TF-IDF cosine similarity.
+sentence-transformers>=3.3

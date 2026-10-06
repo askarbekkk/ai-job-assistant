@@ -1,0 +1,15 @@
+Linh Example
+International student (Vietnam) — Korean: beginner
+
+EDUCATION
+M.S. Electrical Engineering (Computer Vision Lab), KAIST, Daejeon (expected 2027)
+
+SKILLS
+Python, PyTorch, OpenCV, deep learning, computer vision, YOLO, CUDA, Linux, Git, C++
+
+RESEARCH / PROJECTS
+- Defect detection on PCB images with YOLOv8, deployed with Docker on an edge GPU.
+- Image segmentation for medical images, paper submitted (English).
+
+EXPERIENCE
+Research intern, Example Robotics, 6 months (2024): camera calibration and object tracking in C++ and ROS.

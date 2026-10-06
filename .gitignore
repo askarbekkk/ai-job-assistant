@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# secrets & local data
+backend/.env
+backend/uploads/
+backend/*.db
+data/cache/
+data/spot_check.csv
+
+# frontend
+frontend/node_modules/
+frontend/dist/

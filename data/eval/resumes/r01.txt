@@ -1,0 +1,19 @@
+Aigerim Example
+International student (Kazakhstan) — Korean: TOPIK 3
+Email: aigerim@example.com
+
+EDUCATION
+B.S. Industrial Engineering, Chungnam National University, Daejeon (expected 2027)
+
+SKILLS
+Python (Pandas, NumPy, Matplotlib), SQL (MySQL), Tableau, Excel, basic statistics, scikit-learn
+English (IELTS 7.0), Russian (native)
+
+EXPERIENCE
+Data Analysis Intern, Example Retail Co., Almaty — Jul 2025 – Sep 2025 (3 months)
+- Cleaned sales data with Pandas and built weekly Tableau dashboards for store managers.
+- Wrote SQL queries to compute customer retention.
+
+PROJECTS
+- Seoul bike-sharing demand: regression model with scikit-learn, hypothesis testing of weather effects.
+- A/B test analysis of a mock landing page (course project).
