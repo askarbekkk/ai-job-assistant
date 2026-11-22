@@ -100,7 +100,8 @@ function TopProgress() {
 
   useEffect(() => onLoadingChange(setBusy), []);
   useEffect(() => {
-    window.scrollTo(0, 0); // a new page starts at the top
+    // A new page starts at the top. "instant": a smooth scroll is cut off when the page content swaps.
+    window.scrollTo({ top: 0, behavior: "instant" });
     setKick(true);
     const t = setTimeout(() => setKick(false), 350);
     return () => clearTimeout(t);
