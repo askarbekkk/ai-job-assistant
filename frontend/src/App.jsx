@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { NavLink, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { onLoadingChange } from "./api.js";
 import { AuthProvider, RequireAuth, useAuth } from "./auth.jsx";
 import { Icon } from "./components/common.jsx";
 import AuthPage from "./pages/AuthPage.jsx";
@@ -88,6 +90,49 @@ function TabBar() {
   );
 }
 
+/** Thin bar at the top: runs on every page change and while the server is answering. */
+function TopProgress() {
+  const { pathname } = useLocation();
+  const [busy, setBusy] = useState(false);
+  const [kick, setKick] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => onLoadingChange(setBusy), []);
+  useEffect(() => {
+    setKick(true);
+    const t = setTimeout(() => setKick(false), 350);
+    return () => clearTimeout(t);
+  }, [pathname]);
+
+  const active = busy || kick;
+  useEffect(() => {
+    if (active) {
+      setVisible(true);
+      setProgress((p) => Math.max(p, 0.12));
+      // Creep toward 90% and wait there: the real end comes when the request finishes.
+      const t = setInterval(() => setProgress((p) => p + (0.9 - p) * 0.09), 180);
+      return () => clearInterval(t);
+    }
+    setProgress(1);
+    const t = setTimeout(() => {
+      setVisible(false);
+      setProgress(0);
+    }, 420);
+    return () => clearTimeout(t);
+  }, [active]);
+
+  return (
+    <div
+      className={`topbar ${visible ? "on" : ""}`}
+      style={{ transform: `scaleX(${progress})` }}
+      role="progressbar"
+      aria-label="Loading"
+      aria-hidden={!visible}
+    />
+  );
+}
+
 function Home() {
   const { user, loading } = useAuth();
   if (loading) return null;
@@ -103,6 +148,7 @@ export default function App() {
         <span />
         <span />
       </div>
+      <TopProgress />
       <Header />
       <main className="container">
         {/* keyed by path so every page change plays the enter animation */}

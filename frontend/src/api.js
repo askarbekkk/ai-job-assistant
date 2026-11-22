@@ -10,7 +10,28 @@ export class ApiError extends Error {
   }
 }
 
-async function request(method, path, { body, form, params } = {}) {
+// Number of requests in flight, for the top progress bar.
+let inflight = 0;
+const loadingListeners = new Set();
+const setInflight = (delta) => {
+  inflight += delta;
+  loadingListeners.forEach((fn) => fn(inflight > 0));
+};
+export function onLoadingChange(fn) {
+  loadingListeners.add(fn);
+  return () => loadingListeners.delete(fn);
+}
+
+async function request(...args) {
+  setInflight(1);
+  try {
+    return await send(...args);
+  } finally {
+    setInflight(-1);
+  }
+}
+
+async function send(method, path, { body, form, params } = {}) {
   const url = new URL(path, window.location.origin);
   Object.entries(params || {}).forEach(([k, v]) => v !== "" && v != null && url.searchParams.set(k, v));
 
