@@ -233,6 +233,32 @@ input:focus, select:focus { outline: none; border-color: var(--primary); backgro
   display: inline-block; animation: spin 0.7s linear infinite;
 }
 
+/* ---------- delete account ---------- */
+.card.danger { transition: border-color 0.3s, background 0.3s; }
+.card.danger.armed { border-color: var(--red); background: var(--red-soft); }
+.confirm-box { display: flex; flex-direction: column; gap: 8px; animation: rise 0.35s var(--ease) both; }
+.confirm-box p { margin: 0 0 6px; }
+.btn-danger-solid { color: #fff; background: var(--red); border-color: var(--red); min-width: 120px; }
+.btn-danger-solid:hover { border-color: var(--red); box-shadow: 0 10px 24px -10px var(--red); }
+.farewell {
+  position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 16px;
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  animation: fade-in 0.3s ease both;
+}
+.farewell-card {
+  display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; max-width: 320px;
+  padding: 32px 28px; border-radius: 20px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-lift);
+  animation: pop 0.45s var(--ease) both;
+}
+.farewell-card strong { font-size: 1.2rem; }
+.check-draw { width: 72px; height: 72px; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.check-draw circle { stroke: var(--green); stroke-dasharray: 151; stroke-dashoffset: 151; animation: draw 0.6s var(--ease) 0.1s forwards; }
+.check-draw path { stroke: var(--green); stroke-dasharray: 40; stroke-dashoffset: 40; animation: draw 0.4s var(--ease) 0.6s forwards; }
+.deleted-note { grid-column: 1 / -1; margin: 0; align-self: start; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes fade-in { from { opacity: 0; } }
+
 /* ---------- auth / landing ---------- */
 .auth-wrap {
   display: grid; grid-template-columns: 1.15fr 1fr; gap: 48px; align-items: center;

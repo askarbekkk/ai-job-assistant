@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../api.js";
 import { useAuth } from "../auth.jsx";
@@ -248,22 +249,67 @@ function SkillEditor({ skills, onChange }) {
   );
 }
 
+/** idle → confirm → deleting → done (full-screen check), then back to the login page. */
 function DangerZone() {
   const { signOut } = useAuth();
   const navigate = useNavigate();
+  const [stage, setStage] = useState("idle");
+  const [error, setError] = useState(null);
+
   async function remove() {
-    if (!window.confirm("Delete your account, resume and saved jobs permanently?")) return;
-    await api.deleteAccount();
-    signOut();
-    navigate("/register");
+    setStage("deleting");
+    setError(null);
+    try {
+      await api.deleteAccount();
+      setStage("done");
+      setTimeout(() => {
+        navigate("/login", { replace: true, state: { deleted: true } });
+        signOut();
+      }, 1700);
+    } catch (err) {
+      setError(err);
+      setStage("confirm");
+    }
   }
+
   return (
-    <section className="card danger">
+    <section className={`card danger ${stage !== "idle" ? "armed" : ""}`}>
       <h3>Your data</h3>
       <p className="muted small">Your resume is visible only to you. You can delete everything at any time.</p>
-      <button className="btn btn-danger" onClick={remove}>
-        Delete my account and data
-      </button>
+      {stage === "idle" ? (
+        <button className="btn btn-danger" onClick={() => setStage("confirm")}>
+          Delete my account and data
+        </button>
+      ) : (
+        <div className="confirm-box">
+          <strong>Delete everything for good?</strong>
+          <p className="muted small">Your account, resume, matches and saved jobs will be removed. This can't be undone.</p>
+          <ErrorBox error={error} />
+          <div className="row">
+            <button className="btn btn-danger-solid" onClick={remove} disabled={stage !== "confirm"}>
+              {stage === "deleting" ? <span className="spinner" /> : "Yes, delete"}
+            </button>
+            <button className="btn btn-ghost" onClick={() => setStage("idle")} disabled={stage !== "confirm"}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+      {stage === "done" &&
+        // Portal: the animated page wrapper would otherwise clip a fixed overlay to itself.
+        createPortal(
+        <div className="farewell" role="status">
+          <div className="farewell-card">
+            <svg className="check-draw" viewBox="0 0 52 52" aria-hidden="true">
+              <circle cx="26" cy="26" r="24" />
+              <path d="M15 27l7 7 15-16" />
+            </svg>
+            <strong>Account deleted</strong>
+            <span className="muted small">Your resume and data are gone. Taking you to the login page…</span>
+          </div>
+        </div>,
+        document.body
+      )}
     </section>
   );
 }

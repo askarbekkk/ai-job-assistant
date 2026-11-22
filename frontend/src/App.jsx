@@ -100,6 +100,7 @@ function TopProgress() {
 
   useEffect(() => onLoadingChange(setBusy), []);
   useEffect(() => {
+    window.scrollTo(0, 0); // a new page starts at the top
     setKick(true);
     const t = setTimeout(() => setKick(false), 350);
     return () => clearTimeout(t);

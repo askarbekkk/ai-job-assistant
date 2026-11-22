@@ -34,6 +34,11 @@ export default function AuthPage({ mode }) {
 
   return (
     <div className="auth-wrap">
+      {location.state?.deleted && (
+        <div className="success reveal deleted-note" role="status">
+          Your account and all your data were deleted.
+        </div>
+      )}
       <section className="hero">
         <span className="eyebrow">AI job search for Korea</span>
         <h1 className="hero-title">
