@@ -63,6 +63,8 @@ class JobOut(BaseModel):
     employment_type: str
     location: str
     korean_required: str
+    topik_level: int  # 0 = Korean not required, else TOPIK 1-6
+    topik_stated: bool  # True: the posting says it; False: estimated
     description: str
     source_url: str
     collected_date: date | None
@@ -100,6 +102,21 @@ class SkillGapItem(BaseModel):
     count: int
 
 
+class BoostJob(BaseModel):
+    job_id: str
+    title: str
+    company: str
+    score_now: float
+    score_with_skill: float
+
+
+class SkillBoostOut(BaseModel):
+    skill: str
+    unlocked: int  # postings that would become strong matches (70+)
+    improved: int  # postings whose score would rise
+    jobs: list[BoostJob]
+
+
 class RecommendationsOut(BaseModel):
     resume_id: int
     similarity_backend: str
@@ -108,6 +125,7 @@ class RecommendationsOut(BaseModel):
     elapsed_ms: int
     results: list[MatchOut]
     skill_gap: list[SkillGapItem]
+    skill_boosts: list[SkillBoostOut] = []
 
 
 class SavedJobOut(BaseModel):

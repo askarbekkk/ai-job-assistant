@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api.js";
+import { useT } from "../i18n.jsx";
 
 const FILTERS_KEY = "jobassist.filters";
-const EMPTY_FILTERS = { employment_type: "", location: "", korean_level: "" };
+const EMPTY_FILTERS = { employment_type: "", location: "", topik: "" };
 
 /** Filters shared by the job list and recommendations; remembered per browser. */
 export function useFilters() {
   const [filters, setFilters] = useState(() => {
     try {
-      return { ...EMPTY_FILTERS, ...JSON.parse(localStorage.getItem(FILTERS_KEY) || "{}") };
+      const saved = JSON.parse(localStorage.getItem(FILTERS_KEY) || "{}");
+      // only known keys: an older version stored "korean_level"
+      return Object.fromEntries(Object.keys(EMPTY_FILTERS).map((k) => [k, saved[k] ?? ""]));
     } catch {
       return EMPTY_FILTERS;
     }
@@ -25,7 +28,8 @@ export function useFilters() {
 }
 
 export function FilterBar({ filters, onChange, children }) {
-  const [meta, setMeta] = useState({ locations: [], employment_types: [], korean_levels: [] });
+  const { t } = useT();
+  const [meta, setMeta] = useState({ locations: [], employment_types: [] });
   useEffect(() => {
     api.jobMeta().then(setMeta).catch(() => {});
   }, []);
@@ -35,30 +39,37 @@ export function FilterBar({ filters, onChange, children }) {
     <div className="filters">
       {children}
       <label>
-        Job type
+        {t("Job type")}
         <select value={filters.employment_type} onChange={set("employment_type")}>
-          <option value="">Any</option>
-          {meta.employment_types.map((t) => (
-            <option key={t}>{t}</option>
+          <option value="">{t("Any")}</option>
+          {meta.employment_types.map((v) => (
+            <option key={v} value={v}>
+              {t(v)}
+            </option>
           ))}
         </select>
       </label>
       <label>
-        Location
+        {t("Location")}
         <select value={filters.location} onChange={set("location")}>
-          <option value="">Anywhere</option>
-          {meta.locations.map((l) => (
-            <option key={l}>{l}</option>
+          <option value="">{t("Anywhere")}</option>
+          {meta.locations.map((v) => (
+            <option key={v} value={v}>
+              {t(v)}
+            </option>
           ))}
         </select>
       </label>
-      <label title="Postings that need a higher Korean level than yours are hidden">
-        My Korean level
-        <select value={filters.korean_level} onChange={set("korean_level")}>
-          <option value="">Show all</option>
-          <option value="None">None — Korean not required only</option>
-          <option value="Basic">Basic</option>
-          <option value="Fluent">Fluent</option>
+      <label title={t("Postings that need a higher Korean level than yours are hidden")}>
+        {t("My Korean (TOPIK)")}
+        <select value={filters.topik} onChange={set("topik")}>
+          <option value="">{t("Show all")}</option>
+          <option value="0">{t("Korean not needed only")}</option>
+          {[1, 2, 3, 4, 5, 6].map((n) => (
+            <option key={n} value={n}>
+              {t("TOPIK {n}", { n })}
+            </option>
+          ))}
         </select>
       </label>
     </div>
@@ -78,18 +89,30 @@ export function SkillChips({ skills, kind = "", empty = "—" }) {
   );
 }
 
-const KOREAN_LABEL = { None: "Korean not required", Basic: "Basic Korean", Fluent: "Fluent Korean" };
+/** How much Korean the posting needs: "Korean not required" or "TOPIK 4+", marked "est." when guessed. */
+export function TopikBadge({ job }) {
+  const { t } = useT();
+  if (job.topik_level === 0) return <span className="badge badge-green">{t("Korean not required")}</span>;
+  return (
+    <span
+      className={`badge ${job.topik_stated ? "badge-amber" : ""}`}
+      title={t(job.topik_stated ? "The posting states this TOPIK level" : "Estimated: the posting does not state a TOPIK level")}
+    >
+      {t("TOPIK {n}+", { n: job.topik_level })}
+      {!job.topik_stated && <em className="est"> · {t("est.")}</em>}
+    </span>
+  );
+}
 
 export function JobBadges({ job }) {
+  const { t } = useT();
   return (
     <div className="badges">
       <span className={`badge ${job.employment_type === "Internship" ? "badge-blue" : "badge-purple"}`}>
-        {job.employment_type}
+        {t(job.employment_type)}
       </span>
-      <span className="badge">{job.location}</span>
-      <span className={`badge ${job.korean_required === "None" ? "badge-green" : ""}`}>
-        {KOREAN_LABEL[job.korean_required] ?? job.korean_required}
-      </span>
+      <span className="badge">{t(job.location)}</span>
+      <TopikBadge job={job} />
     </div>
   );
 }
@@ -98,6 +121,7 @@ const LIVE_SITE = /(wanted|jobkorea|jumpit)\./i;
 const SITE_LABEL = { wanted: "Wanted", jobkorea: "JobKorea", jumpit: "Jumpit" };
 
 export function JobCard({ job, index = 0, children }) {
+  const { t } = useT();
   const site = job.source_url?.match(LIVE_SITE)?.[1]?.toLowerCase();
   return (
     <article className="card job-card reveal" style={{ "--i": index }}>
@@ -113,7 +137,7 @@ export function JobCard({ job, index = 0, children }) {
             {job.company}
             {site && (
               <span className="live-pill" title="Found by live search after your upload">
-                <i /> {SITE_LABEL[site]}
+                <i /> {t(SITE_LABEL[site])}
               </span>
             )}
           </div>
@@ -166,6 +190,10 @@ const ICONS = {
   upload: "M12 16V4M7 9l5-5 5 5M4 16v4h16v-4",
   arrow: "M5 12h14M13 6l6 6-6 6",
   search: "M11 4a7 7 0 100 14 7 7 0 000-14zM20 20l-4-4",
+  moon: "M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z",
+  sun: "M12 8a4 4 0 100 8 4 4 0 000-8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4",
+  plus: "M12 5v14M5 12h14",
+  chevron: "M9 6l6 6-6 6",
 };
 
 export function Icon({ name }) {

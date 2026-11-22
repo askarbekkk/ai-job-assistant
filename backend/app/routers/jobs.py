@@ -19,6 +19,7 @@ def list_jobs(
     location: str | None = None,
     employment_type: str | None = None,
     korean_level: str | None = Query(None, description="Your Korean level; harder postings are hidden"),
+    topik: int | None = Query(None, ge=0, le=6, description="Your TOPIK level (0 = none); harder postings are hidden"),
     skill: str | None = None,
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
@@ -48,10 +49,15 @@ def list_jobs(
             )
         )
 
-    total = db.scalar(select(func.count()).select_from(stmt.subquery()))
-    jobs = db.scalars(
-        stmt.order_by(Job.collected_date.desc(), Job.job_id).offset((page - 1) * page_size).limit(page_size)
-    ).all()
+    stmt = stmt.order_by(Job.collected_date.desc(), Job.job_id)
+    if topik is not None:
+        # The TOPIK requirement is read from each posting's text, so this filter runs in Python.
+        # ponytail: loads every match first; fine for a few thousand postings, add a column beyond that.
+        matching = [j for j in db.scalars(stmt).all() if j.topik_level <= topik]
+        total, jobs = len(matching), matching[(page - 1) * page_size : page * page_size]
+    else:
+        total = db.scalar(select(func.count()).select_from(stmt.subquery()))
+        jobs = db.scalars(stmt.offset((page - 1) * page_size).limit(page_size)).all()
     return JobPage(total=total, page=page, page_size=page_size, items=[job_out(j) for j in jobs])
 
 

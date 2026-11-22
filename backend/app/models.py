@@ -97,6 +97,20 @@ class Job(Base):
     )
 
     @property
+    def topik(self) -> tuple[int, bool]:
+        from .services.korean import topik_requirement  # computed from the text: no column to migrate
+
+        return topik_requirement(self.description or "", self.korean_required)
+
+    @property
+    def topik_level(self) -> int:
+        return self.topik[0]
+
+    @property
+    def topik_stated(self) -> bool:
+        return self.topik[1]
+
+    @property
     def required_skills(self) -> list[str]:
         return sorted(js.skill.name for js in self.job_skills if js.is_required)
 

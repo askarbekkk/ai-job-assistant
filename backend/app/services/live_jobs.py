@@ -71,6 +71,8 @@ def build_queries(skills: list[str]) -> list[tuple[str, list[str]]]:
         (f"{role} 인턴 {top} 채용", ["wanted.co.kr"]),
         (f"{role} 신입 {top} 채용", ["wanted.co.kr"]),
         (f"{role} {top} 채용", ["jumpit.saramin.co.kr", "jobkorea.co.kr"]),
+        # Postings written for foreign students state a TOPIK level, the thing this app's users need to know.
+        (f"{role} 외국인 유학생 채용 TOPIK", ["jobkorea.co.kr", "wanted.co.kr"]),
     ]
 
 

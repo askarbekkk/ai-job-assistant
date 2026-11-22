@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api.js";
 import { ErrorBox, JobCard, SkillChips } from "../components/common.jsx";
+import { useT } from "../i18n.jsx";
 
 export default function SavedPage() {
+  const { t } = useT();
   const [items, setItems] = useState(null);
   const [error, setError] = useState(null);
 
@@ -18,11 +20,11 @@ export default function SavedPage() {
 
   return (
     <div className="stack">
-      <h1>Saved postings</h1>
+      <h1>{t("Saved postings")}</h1>
       <ErrorBox error={error} />
       {items?.length === 0 && (
         <div className="card empty">
-          Nothing saved yet. <Link to="/recommendations">Browse your matches</Link> and press ☆ Save.
+          {t("Nothing saved yet.")} <Link to="/recommendations">{t("Browse your matches and press ☆ Save.")}</Link>
         </div>
       )}
       {items?.map(({ job, saved_at }, i) => (
@@ -30,9 +32,9 @@ export default function SavedPage() {
           <div className="row-between">
             <SkillChips skills={job.required_skills} />
             <div className="row">
-              <span className="muted small">saved {new Date(saved_at).toLocaleDateString()}</span>
+              <span className="muted small">{t("saved {date}", { date: new Date(saved_at).toLocaleDateString() })}</span>
               <button className="btn btn-ghost" onClick={() => remove(job.job_id)}>
-                Remove
+                {t("Remove")}
               </button>
             </div>
           </div>

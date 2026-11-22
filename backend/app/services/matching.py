@@ -11,6 +11,7 @@ from collections import Counter
 from dataclasses import dataclass, field
 
 from ..config import settings
+from .skill_normalizer import get_normalizer
 
 KOREAN_LEVELS = ["None", "Basic", "Fluent"]
 EMPLOYMENT_TYPES = ["Internship", "Full-time"]
@@ -22,6 +23,8 @@ class Filters:
     employment_type: str | None = None
     # The user's own Korean level: postings requiring more than this are removed.
     korean_level: str | None = None
+    # Same idea as a TOPIK level (0 = no Korean); compared with the posting's TOPIK requirement.
+    topik: int | None = None
 
 
 @dataclass
@@ -52,6 +55,8 @@ def passes_filters(job, filters: Filters) -> bool:
         required = KOREAN_LEVELS.index(job.korean_required) if job.korean_required in KOREAN_LEVELS else 2
         if required > KOREAN_LEVELS.index(filters.korean_level):
             return False
+    if filters.topik is not None and job.topik_level > filters.topik:
+        return False
     return True
 
 
@@ -96,6 +101,47 @@ def score_jobs(
         )
     results.sort(key=lambda m: (-m.score, -m.skill_overlap, m.job.job_id))
     return results
+
+
+STRONG_MATCH = 70  # same line as the green score ring
+
+
+@dataclass
+class SkillBoost:
+    skill: str
+    unlocked: int  # postings that would cross STRONG_MATCH
+    improved: int  # postings whose score would rise
+    jobs: list[tuple[object, float, float]]  # (job, score now, score with the skill), best first
+
+
+def skill_boosts(matches: list[JobMatch], top: int = 6, per_skill: int = 5) -> list[SkillBoost]:
+    """What-if: for each missing required skill, how the scores would change if the user had it.
+
+    Only skill overlap changes (the resume text stays the same), so the new score is the
+    formula re-applied with one more matched skill. Ranked by postings unlocked as strong
+    matches, then by total score gain.
+    """
+    # Suggest things one can learn and put on a resume: not soft skills or languages
+    # (Korean has its own TOPIK filter).
+    categories = get_normalizer().categories
+    skip = {"Soft Skill", "Language"}
+    by_skill: dict[str, list[tuple[object, float, float]]] = {}
+    for m in matches:
+        total = len(m.matched_skills) + len(m.missing_skills)
+        if not total:
+            continue
+        after = final_score((len(m.matched_skills) + 1) / total, m.text_similarity, settings.weight_skill, settings.weight_text)
+        for skill in m.missing_skills:
+            if categories.get(skill) not in skip:
+                by_skill.setdefault(skill, []).append((m.job, m.score, after))
+
+    boosts = []
+    for skill, rows in by_skill.items():
+        rows.sort(key=lambda r: -r[2])
+        unlocked = sum(1 for _, before, after in rows if before < STRONG_MATCH <= after)
+        boosts.append((unlocked, sum(a - b for _, b, a in rows), SkillBoost(skill, unlocked, len(rows), rows[:per_skill])))
+    boosts.sort(key=lambda b: (-b[0], -b[1], b[2].skill))
+    return [b[2] for b in boosts[:top]]
 
 
 def skill_gap_summary(matches: list[JobMatch], top: int = 8) -> list[tuple[str, int]]:

@@ -3,6 +3,7 @@ import { NavLink, Navigate, Route, Routes, useLocation, useNavigate } from "reac
 import { onLoadingChange } from "./api.js";
 import { AuthProvider, RequireAuth, useAuth } from "./auth.jsx";
 import { Icon } from "./components/common.jsx";
+import { LangProvider, useT } from "./i18n.jsx";
 import AuthPage from "./pages/AuthPage.jsx";
 import ResumePage from "./pages/ResumePage.jsx";
 import JobsPage from "./pages/JobsPage.jsx";
@@ -32,8 +33,38 @@ function Brand() {
   );
 }
 
+const THEME_KEY = "jobassist.theme";
+
+/** Light / dark switch. Until the user picks, the page follows the phone's setting. */
+function useTheme() {
+  const systemDark = () => window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+  const [theme, setTheme] = useState(() => {
+    try {
+      return localStorage.getItem(THEME_KEY) || (systemDark() ? "dark" : "light");
+    } catch {
+      return systemDark() ? "dark" : "light";
+    }
+  });
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.querySelectorAll('meta[name="theme-color"]').forEach((m) => (m.content = theme === "dark" ? "#0b1118" : "#f4f6f8"));
+  }, [theme]);
+  const toggle = () => {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    try {
+      localStorage.setItem(THEME_KEY, next);
+    } catch {
+      /* storage unavailable */
+    }
+  };
+  return [theme, toggle];
+}
+
 function Header() {
   const { user, signOut } = useAuth();
+  const { t, lang, setLang } = useT();
+  const [theme, toggleTheme] = useTheme();
   const navigate = useNavigate();
   return (
     <header className="header">
@@ -42,11 +73,29 @@ function Header() {
         <nav className="topnav">
           {navItems(user).map((n) => (
             <NavLink key={n.to} to={n.to}>
-              {n.label}
+              {t(n.label)}
             </NavLink>
           ))}
         </nav>
         <div className="header-user">
+          <div className="lang-switch" role="group" aria-label="Language">
+            {[
+              ["en", "EN"],
+              ["ko", "한"],
+            ].map(([code, label]) => (
+              <button key={code} className={lang === code ? "on" : ""} aria-pressed={lang === code} onClick={() => setLang(code)}>
+                {label}
+              </button>
+            ))}
+          </div>
+          <button
+            className="btn btn-ghost btn-icon theme-btn"
+            onClick={toggleTheme}
+            aria-label={t(theme === "dark" ? "Light mode" : "Dark mode")}
+            title={t(theme === "dark" ? "Light mode" : "Dark mode")}
+          >
+            <Icon name={theme === "dark" ? "sun" : "moon"} />
+          </button>
           {user ? (
             <>
               <span className="avatar" title={user.name}>
@@ -54,8 +103,8 @@ function Header() {
               </span>
               <button
                 className="btn btn-ghost btn-icon"
-                aria-label="Log out"
-                title="Log out"
+                aria-label={t("Log out")}
+                title={t("Log out")}
                 onClick={() => {
                   signOut();
                   navigate("/login");
@@ -66,7 +115,7 @@ function Header() {
             </>
           ) : (
             <NavLink to="/login" className="btn btn-primary">
-              Log in
+              {t("Log in")}
             </NavLink>
           )}
         </div>
@@ -78,12 +127,13 @@ function Header() {
 /** Phone navigation: a tab bar at the bottom, within thumb reach. */
 function TabBar() {
   const { user } = useAuth();
+  const { t } = useT();
   return (
     <nav className="tabbar" aria-label="Main">
       {navItems(user).map((n) => (
         <NavLink key={n.to} to={n.to}>
           <Icon name={n.icon} />
-          <span>{n.label}</span>
+          <span>{t(n.label)}</span>
         </NavLink>
       ))}
     </nav>
@@ -141,7 +191,20 @@ function Home() {
   return <Navigate to={user ? "/recommendations" : "/login"} replace />;
 }
 
+function NotFound() {
+  const { t } = useT();
+  return <p>{t("Page not found.")}</p>;
+}
+
 export default function App() {
+  return (
+    <LangProvider>
+      <Shell />
+    </LangProvider>
+  );
+}
+
+function Shell() {
   const location = useLocation();
   return (
     <AuthProvider>
@@ -164,7 +227,7 @@ export default function App() {
             <Route path="/resume" element={<RequireAuth><ResumePage /></RequireAuth>} />
             <Route path="/recommendations" element={<RequireAuth><RecommendationsPage /></RequireAuth>} />
             <Route path="/saved" element={<RequireAuth><SavedPage /></RequireAuth>} />
-            <Route path="*" element={<p>Page not found.</p>} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
       </main>

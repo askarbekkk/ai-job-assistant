@@ -10,10 +10,10 @@ from ..config import settings
 from ..crud import job_out, latest_resume
 from ..database import get_db
 from ..models import Job, Match, Resume, SavedJob, User
-from ..schemas import MatchOut, RecommendationsOut, SkillGapItem
+from ..schemas import BoostJob, MatchOut, RecommendationsOut, SkillBoostOut, SkillGapItem
 from ..security import get_current_user
 from ..services import similarity
-from ..services.matching import Filters, JobMatch, passes_filters, score_jobs, skill_gap_summary
+from ..services.matching import Filters, JobMatch, passes_filters, score_jobs, skill_boosts, skill_gap_summary
 
 router = APIRouter(prefix="/api/matches", tags=["matches"])
 
@@ -47,6 +47,7 @@ def recommendations(
     location: str | None = None,
     employment_type: str | None = None,
     korean_level: str | None = None,
+    topik: int | None = Query(None, ge=0, le=6),
     limit: int = Query(settings.top_k, ge=1, le=50),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -54,10 +55,12 @@ def recommendations(
     resume = _require_resume(db, user)
     started = time.perf_counter()
 
-    filters = Filters(location=location, employment_type=employment_type, korean_level=korean_level)
+    filters = Filters(location=location, employment_type=employment_type, korean_level=korean_level, topik=topik)
     candidates = [j for j in db.scalars(select(Job)).all() if passes_filters(j, filters)]
     sims = similarity.similarities(resume.raw_text, resume.embedding, candidates)
-    top = score_jobs([s.name for s in resume.skills], candidates, sims)[:limit]
+    scored = score_jobs([s.name for s in resume.skills], candidates, sims)
+    top = scored[:limit]
+    boosts = skill_boosts(scored)
 
     db.query(Match).filter(Match.user_id == user.user_id).delete()
     for m in top:
@@ -73,6 +76,18 @@ def recommendations(
         elapsed_ms=int((time.perf_counter() - started) * 1000),
         results=[_match_out(m, saved) for m in top],
         skill_gap=[SkillGapItem(skill=s, count=c) for s, c in skill_gap_summary(top)],
+        skill_boosts=[
+            SkillBoostOut(
+                skill=b.skill,
+                unlocked=b.unlocked,
+                improved=b.improved,
+                jobs=[
+                    BoostJob(job_id=j.job_id, title=j.title, company=j.company, score_now=now, score_with_skill=after)
+                    for j, now, after in b.jobs
+                ],
+            )
+            for b in boosts
+        ],
     )
 
 

@@ -4,8 +4,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { api } from "../api.js";
 import { useAuth } from "../auth.jsx";
 import { ErrorBox, Icon } from "../components/common.jsx";
+import { useT } from "../i18n.jsx";
 
 export default function ResumePage() {
+  const { t } = useT();
   const [resume, setResume] = useState(null);
   const [skills, setSkills] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -72,16 +74,16 @@ export default function ResumePage() {
 
   const dirty = resume && JSON.stringify([...skills].sort()) !== JSON.stringify([...resume.skills].sort());
 
-  if (loading) return <p className="muted">Loading…</p>;
+  if (loading) return <p className="muted">{t("Loading…")}</p>;
 
   return (
     <div className="stack">
       <Steps current={resume ? 2 : 1} />
 
       <section className="card">
-        <h2>{resume ? "Replace your resume" : "Upload your resume"}</h2>
+        <h2>{t(resume ? "Replace your resume" : "Upload your resume")}</h2>
         <p className="muted small">
-          PDF only, up to 5 MB. Use a PDF exported from Word / Google Docs — scanned images can't be read.
+          {t("PDF only, up to 5 MB. Use a PDF exported from Word / Google Docs — scanned images can't be read.")}
         </p>
         {uploading ? (
           <UploadProgress step={step} />
@@ -106,8 +108,8 @@ export default function ResumePage() {
               <span className="dz-icon">
                 <Icon name="upload" />
               </span>
-              <strong>{fileName || "Drop your PDF here"}</strong>
-              <span className="muted small">{fileName ? "Ready to analyze" : "or tap to choose a file"}</span>
+              <strong>{fileName || t("Drop your PDF here")}</strong>
+              <span className="muted small">{t(fileName ? "Ready to analyze" : "or tap to choose a file")}</span>
               <input
                 ref={fileRef}
                 type="file"
@@ -117,7 +119,7 @@ export default function ResumePage() {
               />
             </label>
             <button className="btn btn-primary btn-lg" disabled={!fileName}>
-              Upload & find jobs <Icon name="arrow" />
+              {t("Upload & find jobs")} <Icon name="arrow" />
             </button>
           </form>
         )}
@@ -125,17 +127,17 @@ export default function ResumePage() {
           <div className="success reveal" ref={(el) => el?.scrollIntoView({ behavior: "smooth", block: "center" })}>
             {resume.live_jobs_found > 0 ? (
               <span>
-                <strong>{resume.live_jobs_found} postings found right now</strong> on Wanted, Jumpit and JobKorea for
-                your skills.
+                <strong>{t("{n} postings found right now", { n: resume.live_jobs_found })}</strong>{" "}
+                {t("on Wanted, Jumpit and JobKorea for your skills.")}
               </span>
             ) : (
               <span>
-                <strong>Your matches are ready.</strong> The live search had nothing new this time, so they come from
-                the postings already collected.
+                <strong>{t("Your matches are ready.")}</strong>{" "}
+                {t("The live search had nothing new this time, so they come from the postings already collected.")}
               </span>
             )}
             <Link to="/recommendations" className="btn btn-primary">
-              See your matches <Icon name="arrow" />
+              {t("See your matches")} <Icon name="arrow" />
             </Link>
           </div>
         )}
@@ -146,36 +148,36 @@ export default function ResumePage() {
       {resume && (
         <section className="card">
           <div className="row-between">
-            <h2>Extracted from your resume</h2>
+            <h2>{t("Extracted from your resume")}</h2>
             <span className="muted small">
-              method: {resume.extraction_method === "llm" ? "AI (LLM)" : "keyword matching"}
+              {t(resume.extraction_method === "llm" ? "method: AI (LLM)" : "method: keyword matching")}
             </span>
           </div>
           <dl className="facts">
-            <dt>Education</dt>
-            <dd>{resume.education || <span className="muted">not found</span>}</dd>
-            <dt>Experience</dt>
+            <dt>{t("Education")}</dt>
+            <dd>{resume.education || <span className="muted">{t("not found")}</span>}</dd>
+            <dt>{t("Experience")}</dt>
             <dd>
-              {resume.experience_years > 0 && `${resume.experience_years} year(s)`}
+              {resume.experience_years > 0 && t("{n} year(s)", { n: resume.experience_years })}
               {resume.experience ? (
                 <div className={resume.experience_years > 0 ? "muted" : ""}>{resume.experience}</div>
               ) : (
-                resume.experience_years === 0 && "No professional experience found"
+                resume.experience_years === 0 && t("No professional experience found")
               )}
             </dd>
           </dl>
 
-          <h3>Skills ({skills.length})</h3>
-          <p className="muted small">Check the list: remove anything wrong and add what was missed.</p>
+          <h3>{t("Skills ({n})", { n: skills.length })}</h3>
+          <p className="muted small">{t("Check the list: remove anything wrong and add what was missed.")}</p>
           <SkillEditor skills={skills} onChange={setSkills} />
 
           <div className="row-between actions">
             <button className="btn btn-primary" onClick={saveSkills} disabled={!dirty || saving}>
-              {saving ? "Saving…" : "Save skills"}
+              {t(saving ? "Saving…" : "Save skills")}
             </button>
-            {saved && <span className="ok">Saved ✓</span>}
+            {saved && <span className="ok">{t("Saved ✓")}</span>}
             <Link to="/recommendations" className="btn">
-              See recommendations →
+              {t("See recommendations")} →
             </Link>
           </div>
         </section>
@@ -192,12 +194,13 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /** What the server is doing during the upload; `step` = index of the running step. */
 function UploadProgress({ step }) {
+  const { t } = useT();
   return (
     <ol className="progress-steps" aria-live="polite">
       {UPLOAD_STEPS.map((s, i) => (
         <li key={s} className={i < step ? "done" : i === step ? "active" : ""}>
           <span className="ps-dot">{i < step ? <Icon name="check" /> : i === step ? <span className="spinner" /> : null}</span>
-          {s}
+          {t(s)}
         </li>
       ))}
     </ol>
@@ -205,12 +208,13 @@ function UploadProgress({ step }) {
 }
 
 function Steps({ current }) {
+  const { t } = useT();
   const steps = ["Sign up", "Upload resume", "View matches"];
   return (
     <ol className="steps">
       {steps.map((s, i) => (
         <li key={s} className={i < current ? "done" : i === current ? "active" : ""}>
-          <span>{i + 1}</span> {s}
+          <span>{i + 1}</span> {t(s)}
         </li>
       ))}
     </ol>
@@ -218,6 +222,7 @@ function Steps({ current }) {
 }
 
 function SkillEditor({ skills, onChange }) {
+  const { t } = useT();
   const [input, setInput] = useState("");
   const [suggestions, setSuggestions] = useState([]);
 
@@ -255,7 +260,7 @@ function SkillEditor({ skills, onChange }) {
       >
         <input
           list="skill-suggestions"
-          placeholder="Add a skill, e.g. Docker"
+          placeholder={t("Add a skill, e.g. Docker")}
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
@@ -264,7 +269,7 @@ function SkillEditor({ skills, onChange }) {
             <option key={s} value={s} />
           ))}
         </datalist>
-        <button className="btn">Add</button>
+        <button className="btn">{t("Add")}</button>
       </form>
     </div>
   );
@@ -272,6 +277,7 @@ function SkillEditor({ skills, onChange }) {
 
 /** idle → confirm → deleting → done (full-screen check), then back to the login page. */
 function DangerZone() {
+  const { t } = useT();
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const [stage, setStage] = useState("idle");
@@ -295,23 +301,23 @@ function DangerZone() {
 
   return (
     <section className={`card danger ${stage !== "idle" ? "armed" : ""}`}>
-      <h3>Your data</h3>
-      <p className="muted small">Your resume is visible only to you. You can delete everything at any time.</p>
+      <h3>{t("Your data")}</h3>
+      <p className="muted small">{t("Your resume is visible only to you. You can delete everything at any time.")}</p>
       {stage === "idle" ? (
         <button className="btn btn-danger" onClick={() => setStage("confirm")}>
-          Delete my account and data
+          {t("Delete my account and data")}
         </button>
       ) : (
         <div className="confirm-box">
-          <strong>Delete everything for good?</strong>
-          <p className="muted small">Your account, resume, matches and saved jobs will be removed. This can't be undone.</p>
+          <strong>{t("Delete everything for good?")}</strong>
+          <p className="muted small">{t("Your account, resume, matches and saved jobs will be removed. This can't be undone.")}</p>
           <ErrorBox error={error} />
           <div className="row">
             <button className="btn btn-danger-solid" onClick={remove} disabled={stage !== "confirm"}>
-              {stage === "deleting" ? <span className="spinner" /> : "Yes, delete"}
+              {stage === "deleting" ? <span className="spinner" /> : t("Yes, delete")}
             </button>
             <button className="btn btn-ghost" onClick={() => setStage("idle")} disabled={stage !== "confirm"}>
-              Cancel
+              {t("Cancel")}
             </button>
           </div>
         </div>
@@ -325,8 +331,8 @@ function DangerZone() {
               <circle cx="26" cy="26" r="24" />
               <path d="M15 27l7 7 15-16" />
             </svg>
-            <strong>Account deleted</strong>
-            <span className="muted small">Your resume and data are gone. Taking you to the login page…</span>
+            <strong>{t("Account deleted")}</strong>
+            <span className="muted small">{t("Your resume and data are gone. Taking you to the login page…")}</span>
           </div>
         </div>,
         document.body

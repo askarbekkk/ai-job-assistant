@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { api } from "../api.js";
 import { ErrorBox, FilterBar, JobCard, SkeletonCards, SkillChips, useFilters } from "../components/common.jsx";
+import { useT } from "../i18n.jsx";
 
 const PAGE_SIZE = 20;
 
 export default function JobsPage() {
+  const { t } = useT();
   const [filters, setFilters] = useFilters();
   const [q, setQ] = useState("");
   const [query, setQuery] = useState("");
@@ -31,13 +33,13 @@ export default function JobsPage() {
   return (
     <div className="stack">
       <div className="row-between">
-        <h1>All postings</h1>
-        {data && <span className="muted small">{data.total} found</span>}
+        <h1>{t("All postings")}</h1>
+        {data && <span className="muted small">{t("{n} found", { n: data.total })}</span>}
       </div>
       <FilterBar filters={filters} onChange={setFilters}>
         <label className="grow">
-          Search
-          <input placeholder="Title, company or keyword" value={q} onChange={(e) => setQ(e.target.value)} />
+          {t("Search")}
+          <input placeholder={t("Title, company or keyword")} value={q} onChange={(e) => setQ(e.target.value)} />
         </label>
       </FilterBar>
       <ErrorBox error={error} />
@@ -45,7 +47,7 @@ export default function JobsPage() {
       {data?.items.map((job, i) => (
         <JobCard key={job.job_id} job={job} index={i}>
           <div className="skill-row">
-            <span className="label">Required</span>
+            <span className="label">{t("Required")}</span>
             <SkillChips skills={job.required_skills} />
           </div>
         </JobCard>
@@ -53,13 +55,13 @@ export default function JobsPage() {
       {pages > 1 && (
         <div className="pager">
           <button className="btn" disabled={page <= 1} onClick={() => setPage(page - 1)}>
-            ← Prev
+            {t("← Prev")}
           </button>
           <span className="muted">
             {page} / {pages}
           </span>
           <button className="btn" disabled={page >= pages} onClick={() => setPage(page + 1)}>
-            Next →
+            {t("Next →")}
           </button>
         </div>
       )}
