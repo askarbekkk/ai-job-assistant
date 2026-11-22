@@ -14,6 +14,7 @@ export default function ResumePage() {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState(null);
   const [fileName, setFileName] = useState("");
+  const [step, setStep] = useState(0);
   const [dragging, setDragging] = useState(false);
   const fileRef = useRef();
 
@@ -37,12 +38,21 @@ export default function ResumePage() {
     if (!file) return;
     setUploading(true);
     setError(null);
+    setStep(0);
+    // The upload is one request. The steps advance on a timer, and the result waits until every
+    // step has been shown, so a fast server doesn't skip the explanation of what happens.
+    const timer = setInterval(() => setStep((s) => Math.min(s + 1, UPLOAD_STEPS.length - 1)), STEP_MS);
     try {
-      load(await api.uploadResume(file));
+      const [res] = await Promise.all([api.uploadResume(file), sleep(STEP_MS * (UPLOAD_STEPS.length - 1))]);
+      clearInterval(timer);
+      setStep(UPLOAD_STEPS.length); // all steps ticked
+      await sleep(700);
+      load(res);
       setFileName(""); // the form is unmounted during the upload, so the input is already empty
     } catch (err) {
       setError(err);
     } finally {
+      clearInterval(timer);
       setUploading(false);
     }
   }
@@ -74,7 +84,7 @@ export default function ResumePage() {
           PDF only, up to 5 MB. Use a PDF exported from Word / Google Docs — scanned images can't be read.
         </p>
         {uploading ? (
-          <UploadProgress />
+          <UploadProgress step={step} />
         ) : (
           <form onSubmit={upload} className="upload-form">
             <label
@@ -113,10 +123,17 @@ export default function ResumePage() {
         )}
         {resume?.live_jobs_found != null && !uploading && (
           <div className="success reveal" ref={(el) => el?.scrollIntoView({ behavior: "smooth", block: "center" })}>
-            <span>
-              <strong>{resume.live_jobs_found} postings found right now</strong> on Wanted, Jumpit and JobKorea for your
-              skills.
-            </span>
+            {resume.live_jobs_found > 0 ? (
+              <span>
+                <strong>{resume.live_jobs_found} postings found right now</strong> on Wanted, Jumpit and JobKorea for
+                your skills.
+              </span>
+            ) : (
+              <span>
+                <strong>Your matches are ready.</strong> The live search had nothing new this time, so they come from
+                the postings already collected.
+              </span>
+            )}
             <Link to="/recommendations" className="btn btn-primary">
               See your matches <Icon name="arrow" />
             </Link>
@@ -166,14 +183,11 @@ export default function ResumePage() {
 }
 
 const UPLOAD_STEPS = ["Reading your PDF", "Extracting skills", "Searching Wanted, Jumpit, JobKorea", "Scoring matches"];
+const STEP_MS = 900;
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-/** The upload is one request; the steps advance on a timer to show what the server is doing. */
-function UploadProgress() {
-  const [step, setStep] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setStep((s) => Math.min(s + 1, UPLOAD_STEPS.length - 1)), 1600);
-    return () => clearInterval(t);
-  }, []);
+/** What the server is doing during the upload; `step` = index of the running step. */
+function UploadProgress({ step }) {
   return (
     <ol className="progress-steps" aria-live="polite">
       {UPLOAD_STEPS.map((s, i) => (

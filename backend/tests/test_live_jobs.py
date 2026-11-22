@@ -44,4 +44,9 @@ def test_only_entry_level_postings():
 
 def test_queries_follow_resume_skills():
     assert build_queries(["Git", "React", "TypeScript"])[0][0].startswith("프론트엔드 개발자 인턴 React TypeScript")
+    # Role skills lead even when the list is alphabetical.
+    q = build_queries(["Blockchain", "Bootstrap", "CUDA", "Docker", "Python", "PyTorch", "RAG", "React"])[0][0]
+    assert q == "AI 엔지니어 인턴 PyTorch RAG 채용"
+    q = build_queries(["Git", "Excel", "Communication"])[0][0]
+    assert q == "개발자 인턴 Excel 채용"
     assert guess_korean("We build LLM apps in English") == "Basic"

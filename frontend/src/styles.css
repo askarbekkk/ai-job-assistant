@@ -94,7 +94,7 @@ a:hover { text-decoration: underline; }
   padding: 28px max(16px, env(safe-area-inset-right)) 72px max(16px, env(safe-area-inset-left));
 }
 .page { animation: page-in 0.45s var(--ease) both; }
-@keyframes page-in { from { opacity: 0; transform: translateY(10px); } }
+@keyframes page-in { from { opacity: 0; transform: translateY(6px); } }
 
 .stack { display: flex; flex-direction: column; gap: 16px; }
 .row { display: flex; align-items: center; gap: 12px; }
@@ -203,11 +203,11 @@ input:focus, select:focus { outline: none; border-color: var(--primary); backgro
   display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;
   transition: transform 0.15s var(--ease), box-shadow 0.2s, border-color 0.2s, background 0.2s;
 }
-.btn:hover { text-decoration: none; border-color: var(--primary); transform: translateY(-1px); }
+.btn:hover { text-decoration: none; border-color: var(--primary); }
 .btn:active { transform: translateY(0) scale(0.97); }
 .btn:disabled { opacity: 0.5; cursor: default; transform: none; }
 .btn .icon { width: 18px; height: 18px; transition: transform 0.2s var(--ease); }
-.btn:hover .icon { transform: translateX(2px); }
+
 .btn-primary {
   color: #fff; border-color: transparent;
   background: linear-gradient(135deg, var(--primary), var(--primary-ink));
@@ -218,7 +218,7 @@ input:focus, select:focus { outline: none; border-color: var(--primary); backgro
 .btn-lg { min-height: 50px; font-size: 1rem; padding: 12px 22px; }
 .btn-ghost { border-color: transparent; background: transparent; }
 .btn-icon { width: 40px; padding: 0; }
-.btn-icon:hover .icon { transform: none; }
+
 .btn-danger { color: var(--red); border-color: var(--red); background: transparent; }
 .btn-saved { background: var(--amber-soft); border-color: var(--amber); color: var(--amber); }
 .link-btn { background: none; border: none; padding: 0; cursor: pointer; font: inherit; align-self: flex-start; }
@@ -317,7 +317,7 @@ input:focus, select:focus { outline: none; border-color: var(--primary); backgro
   width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; margin-bottom: 4px;
   color: var(--primary); background: var(--surface); box-shadow: var(--shadow);
 }
-.dropzone:hover .dz-icon, .dropzone.dragging .dz-icon { animation: bob 1s var(--ease) infinite alternate; }
+.dropzone.dragging .dz-icon { animation: bob 1s var(--ease) infinite alternate; }
 .upload-form .btn { align-self: flex-start; }
 @media (max-width: 600px) { .upload-form .btn { align-self: stretch; } }
 
@@ -395,7 +395,7 @@ input:focus, select:focus { outline: none; border-color: var(--primary); backgro
   display: flex; flex-direction: column; gap: 14px;
   transition: transform 0.25s var(--ease), box-shadow 0.25s, border-color 0.25s;
 }
-.job-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); border-color: color-mix(in srgb, var(--primary) 35%, var(--border)); }
+
 .job-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
 .job-name { min-width: 0; flex: 1; }
 .job-title { font-weight: 700; font-size: 1.08rem; color: var(--text); letter-spacing: -0.01em; overflow-wrap: anywhere; }
@@ -495,4 +495,13 @@ input:focus, select:focus { outline: none; border-color: var(--primary); backgro
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/* Lift effects only with a real mouse: on phones a tap "sticks" as hover and makes cards jump. */
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover { transform: translateY(-1px); }
+  .btn:hover .icon { transform: translateX(2px); }
+  .btn-icon:hover .icon { transform: none; }
+  .dropzone:hover .dz-icon { animation: bob 1s var(--ease) infinite alternate; }
+  .job-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); border-color: color-mix(in srgb, var(--primary) 35%, var(--border)); }
 }

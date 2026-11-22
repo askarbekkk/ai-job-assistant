@@ -31,11 +31,12 @@ POSTING_URLS = [
 ]
 SITE_NAMES = {"W": "Wanted", "JP": "Jumpit", "JK": "JobKorea"}
 
-ROLES = [  # first matching skill group decides what kind of job to search for
-    ({"machine learning", "deep learning", "pytorch", "tensorflow", "nlp", "llm", "computer vision", "rag"}, "AI 엔지니어"),
-    ({"pandas", "data analysis", "sql", "tableau", "power bi", "statistics"}, "데이터 분석"),
-    ({"react", "javascript", "typescript", "vue.js", "next.js"}, "프론트엔드 개발자"),
-    ({"java", "spring", "node.js", "fastapi", "django", "nestjs"}, "백엔드 개발자"),
+ROLES = [  # the group with the most of the resume's skills decides the role; order = search priority
+    (("pytorch", "large language models", "rag", "computer vision", "deep learning", "machine learning",
+      "natural language processing", "tensorflow", "langchain", "hugging face", "opencv"), "AI 엔지니어"),
+    (("sql", "pandas", "data analysis", "tableau", "power bi", "statistics"), "데이터 분석"),
+    (("react", "typescript", "javascript", "next.js", "vue.js"), "프론트엔드 개발자"),
+    (("java", "spring", "node.js", "fastapi", "django", "nestjs"), "백엔드 개발자"),
 ]
 
 CITIES = [
@@ -56,11 +57,16 @@ def enabled() -> bool:
 
 
 def build_queries(skills: list[str]) -> list[tuple[str, list[str]]]:
-    lower = {s.lower() for s in skills}
-    role = next((r for group, r in ROLES if lower & group), "개발자")
-    # Search with the most specific skills: skip generic ones that match every posting.
-    generic = {"git", "english", "korean", "communication", "teamwork", "linux", "microsoft office"}
-    top = " ".join([s for s in skills if s.lower() not in generic][:3])
+    by_lower = {s.lower(): s for s in skills}
+    group, role = max(ROLES, key=lambda g: len(by_lower.keys() & set(g[0])))
+    # Search with the skills that define the role, most important first. (The list arrives
+    # sorted A-Z, so taking the first three gave queries like "Blockchain Bootstrap CUDA".)
+    role_skills = [by_lower[k] for k in group if k in by_lower]
+    if not role_skills:
+        role = "개발자"
+        generic = {"git", "github", "english", "korean", "communication", "teamwork", "linux", "microsoft office"}
+        role_skills = [s for s in skills if s.lower() not in generic]
+    top = " ".join(role_skills[:3])
     return [
         (f"{role} 인턴 {top} 채용", ["wanted.co.kr"]),
         (f"{role} 신입 {top} 채용", ["wanted.co.kr"]),
