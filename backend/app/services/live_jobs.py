@@ -91,10 +91,14 @@ def parse_title(prefix: str, title: str) -> tuple[str, str]:
         m = re.match(r"\[(.+?)\]\s*(.+?)\s*채용 공고", title)
         if m:
             return _clean(m[1]), _clean(m[2])
-    if prefix == "JK":  # "파워인포텍 채용 - LLM 엔지니어 (...) | 잡코리아"
-        m = re.match(r"(.+?) 채용 - (.+?)(?:\s*[|-]\s*잡코리아)?$", title)
+    if prefix == "JK":
+        title = re.sub(r"\s*[-|–—]\s*잡코리아\s*$", "", title)
+        m = re.match(r"(.+?) 채용 - (.+)$", title)  # "파워인포텍 채용 - LLM 엔지니어"
         if m:
             return _clean(m[1]), _clean(m[2])
+        m = re.match(r"(.+) - (.+?) 채용$", title)  # "데이터 분석가 - 더블유게임즈 채용"
+        if m:
+            return _clean(m[2]), _clean(m[1])
     if prefix == "JP":  # "점핏 | AI 엔지니어 채용" or "[캐시워크] 데이터분석 - 점핏"
         title = _clean(re.sub(r"^점핏\s*\||-\s*점핏$", "", title))
     m = re.match(r"\[(.+?)\]\s*(.+)", title)
@@ -108,7 +112,8 @@ def is_entry_level(title: str) -> bool:
     if re.search(r"인턴|신입|주니어|intern|junior|new grad", title, re.I):
         return True
     years = [int(n) for n in re.findall(r"(\d+)\s*년", title)]
-    return "경력" not in title and not any(n >= 3 for n in years)
+    senior = re.search(r"경력|시니어|senior|middle|lead|팀장|리드", title, re.I)
+    return not senior and not any(n >= 3 for n in years)
 
 
 def guess_location(text: str) -> str:
@@ -134,9 +139,10 @@ def to_job_row(result: dict) -> dict | None:
             break
     else:
         return None
-    company, title = parse_title(prefix, result.get("title", ""))
+    page_title = result.get("title", "")
+    company, title = parse_title(prefix, page_title)
     text = (result.get("raw_content") or result.get("content") or "")[:6000]
-    if not title or not text or not is_entry_level(title):
+    if not title or not text or not is_entry_level(page_title):
         return None
     return {
         "job_id": f"{prefix}{m[1]}"[:20],

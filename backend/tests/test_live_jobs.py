@@ -25,6 +25,11 @@ def test_jobkorea_posting_and_non_posting_pages():
     })
     assert (row["job_id"], row["company"], row["location"]) == ("JK50381653", "파워인포텍", "Seongnam")
     assert row["korean_required"] == "None"
+    jk = lambda title: to_job_row({"url": "https://www.jobkorea.co.kr/Recruit/GI_Read/2", "title": title, "content": "SQL"})  # noqa: E731
+    assert (jk("SOOP 채용 - 데이터 분석 엔지니어 - 잡코리아")["company"], jk("SOOP 채용 - 데이터 분석 엔지니어 - 잡코리아")["title"]) == ("SOOP", "데이터 분석 엔지니어")
+    assert (jk("데이터 분석가 인턴 - 미리디 채용 | 잡코리아")["company"]) == "미리디"
+    assert jk("데이터 분석가 (경력) - 더블유게임즈 채용 - 잡코리아") is None
+    assert jk("Data Analyst(Middle) - 바비톡 채용 - 잡코리아") is None
     # Search/list pages are not postings.
     assert to_job_row({"url": "https://www.jobkorea.co.kr/Search?stext=llm", "title": "x", "content": "y"}) is None
 
