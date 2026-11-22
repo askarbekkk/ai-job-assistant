@@ -73,9 +73,13 @@ class SkillNormalizer:
         result: list[str] = []
         for raw in raws:
             name = self.normalize(raw)
-            if name and name.lower() not in seen:
-                seen.add(name.lower())
-                result.append(name)
+            # An unknown entry like "Python (Pandas, NumPy)" or "basic statistics" is
+            # replaced by the known skills it mentions, so it can match job postings.
+            names = [name] if not name or self.is_known(name) else (self.extract_keywords(raw) or [name])
+            for name in names:
+                if name and name.lower() not in seen:
+                    seen.add(name.lower())
+                    result.append(name)
         return result
 
     def extract_keywords(self, text: str) -> list[str]:

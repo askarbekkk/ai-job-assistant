@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     embedding_backend: str = "auto"
     embedding_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 
+    # Live job search on Wanted / Jumpit / JobKorea after each resume upload (off when empty)
+    tavily_api_key: str | None = None
+
     weight_skill: float = 0.7
     weight_text: float = 0.3
     top_k: int = 10

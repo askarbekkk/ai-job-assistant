@@ -6,9 +6,21 @@ Upload your PDF resume and get the **top 10 matching internships and entry-level
 
 1. **Resume → skills.** Text is taken from the PDF. Skills are extracted by an LLM (Claude or a free local model via Ollama) or by dictionary matching.
 2. **Normalization.** Different spellings become one name, e.g. `ML` → `Machine Learning`, `파이썬` → `Python`.
-3. **Matching.** `Score = 100 × (0.7 × skill overlap + 0.3 × text similarity)`. Postings are filtered first by location, job type and Korean level.
+3. **Live job search.** Right after the upload, the resume's skills become web searches (Tavily API) on Wanted, Jumpit and JobKorea. Posting pages are parsed (company, title, internship or full-time, city, Korean level), senior roles are dropped, re-posts are merged, and the new postings are added to the database.
+4. **Matching.** `Score = 100 × (0.7 × skill overlap + 0.3 × text similarity)`. Postings are filtered first by location, job type and Korean level.
 
-**Stack:** React + Vite · FastAPI · SQLAlchemy (PostgreSQL or SQLite)
+**Stack:** React + Vite · FastAPI · SQLAlchemy (PostgreSQL or SQLite) · Tavily search API · Docker
+
+Live search needs a free key from [tavily.com](https://tavily.com) in `backend/.env` (`TAVILY_API_KEY=...`). Without it the app matches against the imported postings only.
+
+## Docker (one container)
+
+```bash
+docker build -t job-assistant .
+docker run -p 7860:7860 -e TAVILY_API_KEY=... -e JWT_SECRET=... job-assistant   # http://localhost:7860
+```
+
+The image serves the API and the built React app together, loads the sample postings on start, and uses keyword extraction and TF-IDF, so it needs no GPU or model download.
 
 ## Quick start (Windows)
 

@@ -12,7 +12,7 @@ from ..database import get_db
 from ..models import Match, Resume, User
 from ..schemas import ResumeOut, SkillsIn
 from ..security import get_current_user
-from ..services import similarity
+from ..services import live_jobs, similarity
 from ..services.extraction import ExtractionError, extract_resume
 from ..services.pdf_text import PdfError, extract_text
 from ..services.skill_normalizer import get_normalizer
@@ -63,7 +63,10 @@ def upload_resume(
         resume.embedding = similarity.embedding_record(text)
     db.add(resume)
     db.commit()
-    return resume_out(resume)
+    out = resume_out(resume)
+    if live_jobs.enabled():
+        out.live_jobs_found = live_jobs.search_and_store(db, out.skills)
+    return out
 
 
 @router.get("/resume", response_model=ResumeOut)

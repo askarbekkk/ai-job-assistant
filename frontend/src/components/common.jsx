@@ -94,6 +94,8 @@ export function JobBadges({ job }) {
   );
 }
 
+const LIVE_SITE = /(wanted|jobkorea|jumpit)\./i;
+
 export function JobCard({ job, children }) {
   return (
     <article className="card job-card">
@@ -102,7 +104,10 @@ export function JobCard({ job, children }) {
           <Link to={`/jobs/${job.job_id}`} className="job-title">
             {job.title}
           </Link>
-          <div className="muted">{job.company}</div>
+          <div className="muted">
+            {job.company}
+            {LIVE_SITE.test(job.source_url) && ` · live from ${job.source_url.match(LIVE_SITE)[1]}`}
+          </div>
         </div>
         <JobBadges job={job} />
       </div>

@@ -73,9 +73,15 @@ export default function ResumePage() {
         <form onSubmit={upload} className="upload-row">
           <input ref={fileRef} type="file" accept="application/pdf,.pdf" required />
           <button className="btn btn-primary" disabled={uploading}>
-            {uploading ? "Analyzing resume…" : "Upload & extract skills"}
+            {uploading ? "Analyzing resume and searching jobs…" : "Upload & find jobs"}
           </button>
         </form>
+        {resume?.live_jobs_found != null && (
+          <p className="ok">
+            Searched Wanted and JobKorea for your skills: {resume.live_jobs_found} new posting(s) added.{" "}
+            <Link to="/recommendations">See your matches →</Link>
+          </p>
+        )}
       </section>
 
       <ErrorBox error={error} />

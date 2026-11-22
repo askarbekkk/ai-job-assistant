@@ -14,6 +14,7 @@ os.environ.update(
     UPLOAD_DIR=str(_TMP / "uploads"),
     CACHE_DIR=str(_TMP / "cache"),
     JWT_SECRET="test-secret-test-secret-test-secret-0123",
+    TAVILY_API_KEY="",  # no live web search in tests
 )
 
 import pytest  # noqa: E402

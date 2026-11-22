@@ -46,6 +46,7 @@ class ResumeOut(BaseModel):
     extraction_method: str
     skills: list[str]
     uploaded_at: datetime
+    live_jobs_found: int | None = None  # set only right after an upload with live search on
 
 
 class SkillsIn(BaseModel):

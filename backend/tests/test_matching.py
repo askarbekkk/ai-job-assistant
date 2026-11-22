@@ -55,6 +55,8 @@ def test_normalizer_aliases():
     assert n.normalize("golang") == "Go"
     assert n.normalize("  Some Tool ") == "Some Tool"
     assert n.normalize_many(["Python", "python3", "PYTHON"]) == ["Python"]
+    # LLM output that lists several skills in one entry is split into known skills.
+    assert n.normalize_many(["Python (Pandas, NumPy)", "SQL (MySQL)"]) == ["Python", "Pandas", "NumPy", "SQL", "MySQL"]
 
 
 def test_keyword_extraction_boundaries():

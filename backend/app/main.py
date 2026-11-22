@@ -1,10 +1,11 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
-from .config import settings
+from .config import BACKEND_DIR, settings
 from .database import init_db
 from .routers import auth, jobs, matches, resume, saved
 from .services import extraction, similarity
@@ -45,3 +46,18 @@ def health():
         "skill_extractor": "llm" if extraction.llm_enabled() else "keyword",
         "similarity_backend": similarity.backend(),
     }
+
+
+# In the Docker image the built React app sits in backend/static and is served
+# from here, so one container is the whole site. In development Vite serves it.
+STATIC_DIR = (BACKEND_DIR / "static").resolve()
+if STATIC_DIR.is_dir():
+
+    @app.get("/{path:path}", include_in_schema=False)
+    def spa(path: str):
+        if path.startswith("api/"):
+            raise HTTPException(404, "Not found")
+        file = (STATIC_DIR / path).resolve()
+        if path and file.is_file() and file.is_relative_to(STATIC_DIR):
+            return FileResponse(file)
+        return FileResponse(STATIC_DIR / "index.html")  # client-side routes

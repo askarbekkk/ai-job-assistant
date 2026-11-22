@@ -14,3 +14,4 @@ data/spot_check.csv
 # frontend
 frontend/node_modules/
 frontend/dist/
+backend/static/

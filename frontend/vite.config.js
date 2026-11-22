@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-    // The FastAPI backend runs on :8000; the browser only talks to Vite.
-    proxy: { "/api": "http://localhost:8000" },
+    // The FastAPI backend runs on :8000 (override with API_URL); the browser only talks to Vite.
+    proxy: { "/api": process.env.API_URL || "http://localhost:8000" },
   },
 });
