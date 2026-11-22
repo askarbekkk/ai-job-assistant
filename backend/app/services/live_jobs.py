@@ -165,7 +165,8 @@ def find_postings(skills: list[str]) -> list[dict]:
 
 
 def search_and_store(db: Session, skills: list[str]) -> int:
-    """Search the web for postings matching `skills` and upsert them. Returns how many are new."""
+    """Search the web for postings matching `skills` and upsert them. Returns how many were found
+    (already-known postings count too: they are confirmed as still listed today)."""
     if not enabled() or not skills:
         return 0
 
@@ -191,4 +192,4 @@ def search_and_store(db: Session, skills: list[str]) -> int:
         job.collected_date = date.today()
     db.commit()
     log.info("Live search: %d postings found, %d new", len(rows), new)
-    return new
+    return len(rows)

@@ -113,7 +113,10 @@ export default function ResumePage() {
         )}
         {resume?.live_jobs_found != null && !uploading && (
           <div className="success reveal">
-            <strong>{resume.live_jobs_found} new postings found</strong> on Wanted, Jumpit and JobKorea for your skills.
+            <span>
+              <strong>{resume.live_jobs_found} postings found right now</strong> on Wanted, Jumpit and JobKorea for your
+              skills.
+            </span>
             <Link to="/recommendations" className="btn btn-primary">
               See your matches <Icon name="arrow" />
             </Link>
