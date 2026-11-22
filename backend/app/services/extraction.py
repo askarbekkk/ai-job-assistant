@@ -190,23 +190,37 @@ def _call_claude(system: str, text: str, schema: dict) -> dict:
 
 # ---------------------------------------------------------------- keyword
 
+# Letters may not touch the match: "M.S." must not be found inside "Shamshidinov".
 _EDU_LINE = re.compile(
-    r"(university|college|institute|b\.?s\.?|b\.?a\.?|m\.?s\.?|bachelor|master|ph\.?d|"
-    r"대학교|대학원|학사|석사|박사)",
+    r"(?<![A-Za-z])(university|college|institute|b\.?s\.?|b\.?a\.?|m\.?s\.?|bachelor|master|ph\.?d)(?![A-Za-z])|"
+    r"대학교|대학원|학사|석사|박사",
     re.IGNORECASE,
 )
+_HEADING = re.compile(r"^(education|experience|work experience|employment|학력|경력)\s*:?$", re.IGNORECASE)
+
+
+def _first_line_under(lines: list[str], names: tuple[str, ...]) -> str:
+    """The first line after a section heading such as EDUCATION or 경력."""
+    for i, ln in enumerate(lines[:-1]):
+        m = _HEADING.match(ln)
+        if m and m.group(1).lower() in names:
+            return lines[i + 1]
+    return ""
 _YEARS = re.compile(r"(\d+(?:\.\d+)?)\s*\+?\s*(?:years?|yrs?|년)", re.IGNORECASE)
 
 
 def keyword_resume(text: str) -> ResumeInfo:
     normalizer = get_normalizer()
     lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
-    education = next((ln for ln in lines if _EDU_LINE.search(ln)), "")
+    education = _first_line_under(lines, ("education", "학력")) or next(
+        (ln for ln in lines if _EDU_LINE.search(ln)), ""
+    )
+    experience = _first_line_under(lines, ("experience", "work experience", "employment", "경력"))
     years = [float(m.group(1)) for m in _YEARS.finditer(text) if float(m.group(1)) < 50]
     return ResumeInfo(
         skills=normalizer.extract_keywords(text),
         education=education[:300],
-        experience="",
+        experience=experience[:300],
         experience_years=max(years, default=0.0),
         method="keyword",
     )

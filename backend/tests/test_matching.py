@@ -2,7 +2,7 @@
 
 from types import SimpleNamespace
 
-from app.services.extraction import keyword_job
+from app.services.extraction import keyword_job, keyword_resume
 from app.services.matching import Filters, compare_skills, final_score, passes_filters, score_jobs
 from app.services.similarity import tfidf_similarities
 from app.services.skill_normalizer import get_normalizer
@@ -67,6 +67,15 @@ def test_keyword_extraction_boundaries():
     assert "SQL" not in found  # not inside "MySQL"
     assert "C" not in found
     assert "Go" not in n.extract_keywords("Let's go to the next step")
+
+
+def test_keyword_resume_reads_sections():
+    cv = "Askar Shamshidinov\nAI engineer\nEXPERIENCE\nAI Developer Intern — Motion Group\nEDUCATION\nWoosong University — B.S. in AI"
+    r = keyword_resume(cv)
+    assert r.education == "Woosong University — B.S. in AI"
+    assert r.experience == "AI Developer Intern — Motion Group"
+    # No heading: the education line is found by keyword, never inside a name ("Sha-ms-hidinov").
+    assert keyword_resume("Askar Shamshidinov\nKAIST, M.S. Computer Science").education == "KAIST, M.S. Computer Science"
 
 
 def test_keyword_job_splits_preferred_section():

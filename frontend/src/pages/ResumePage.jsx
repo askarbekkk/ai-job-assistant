@@ -156,8 +156,12 @@ export default function ResumePage() {
             <dd>{resume.education || <span className="muted">not found</span>}</dd>
             <dt>Experience</dt>
             <dd>
-              {resume.experience_years > 0 ? `${resume.experience_years} year(s)` : "No professional experience found"}
-              {resume.experience && <div className="muted">{resume.experience}</div>}
+              {resume.experience_years > 0 && `${resume.experience_years} year(s)`}
+              {resume.experience ? (
+                <div className={resume.experience_years > 0 ? "muted" : ""}>{resume.experience}</div>
+              ) : (
+                resume.experience_years === 0 && "No professional experience found"
+              )}
             </dd>
           </dl>
 
