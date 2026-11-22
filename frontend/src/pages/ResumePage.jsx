@@ -112,7 +112,7 @@ export default function ResumePage() {
           </form>
         )}
         {resume?.live_jobs_found != null && !uploading && (
-          <div className="success reveal">
+          <div className="success reveal" ref={(el) => el?.scrollIntoView({ behavior: "smooth", block: "center" })}>
             <span>
               <strong>{resume.live_jobs_found} postings found right now</strong> on Wanted, Jumpit and JobKorea for your
               skills.
