@@ -562,12 +562,12 @@ body, .card, .header, .tabbar { transition: background-color 0.35s ease, border-
 .boost { border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); overflow: hidden; transition: border-color 0.25s; }
 .boost.open { border-color: color-mix(in srgb, var(--primary) 45%, var(--border)); }
 .boost-head {
-  width: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 10px 12px; border: 0; background: none;
+  width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px; padding: 10px 12px; border: 0; background: none;
   font: inherit; color: var(--text); cursor: pointer; text-align: left;
 }
-.boost-skill { flex: 1 1 auto; min-width: 0; display: inline-flex; align-items: center; gap: 4px; font-weight: 700; }
+.boost-skill { min-width: 0; display: inline-flex; align-items: center; gap: 4px; font-weight: 700; }
 .boost-skill .icon { width: 16px; height: 16px; color: var(--primary); }
-.boost-gain { margin-left: auto; font-size: 0.78rem; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.boost-gain { font-size: 0.78rem; font-weight: 600; color: var(--muted); white-space: nowrap; }
 .boost-gain.strong { color: var(--green); background: var(--green-soft); padding: 3px 8px; border-radius: 999px; }
 .boost-chev { display: grid; color: var(--muted); transition: transform 0.25s var(--ease); }
 .boost-chev .icon { width: 16px; height: 16px; }
