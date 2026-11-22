@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../api.js";
-import { ErrorBox, FilterBar, JobCard, SkillChips, useFilters } from "../components/common.jsx";
+import { ErrorBox, FilterBar, JobCard, SkeletonCards, SkillChips, useFilters } from "../components/common.jsx";
 
 const PAGE_SIZE = 20;
 
@@ -41,8 +41,9 @@ export default function JobsPage() {
         </label>
       </FilterBar>
       <ErrorBox error={error} />
-      {data?.items.map((job) => (
-        <JobCard key={job.job_id} job={job}>
+      {!data && !error && <SkeletonCards count={4} />}
+      {data?.items.map((job, i) => (
+        <JobCard key={job.job_id} job={job} index={i}>
           <div className="skill-row">
             <span className="label">Required</span>
             <SkillChips skills={job.required_skills} />

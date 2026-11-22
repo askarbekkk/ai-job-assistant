@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../api.js";
 import { useAuth } from "../auth.jsx";
-import { ErrorBox } from "../components/common.jsx";
+import { ErrorBox, Icon } from "../components/common.jsx";
 
 export default function ResumePage() {
   const [resume, setResume] = useState(null);
@@ -12,6 +12,8 @@ export default function ResumePage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState(null);
+  const [fileName, setFileName] = useState("");
+  const [dragging, setDragging] = useState(false);
   const fileRef = useRef();
 
   const load = (r) => {
@@ -36,7 +38,7 @@ export default function ResumePage() {
     setError(null);
     try {
       load(await api.uploadResume(file));
-      fileRef.current.value = "";
+      setFileName(""); // the form is unmounted during the upload, so the input is already empty
     } catch (err) {
       setError(err);
     } finally {
@@ -67,20 +69,54 @@ export default function ResumePage() {
 
       <section className="card">
         <h2>{resume ? "Replace your resume" : "Upload your resume"}</h2>
-        <p className="muted">
+        <p className="muted small">
           PDF only, up to 5 MB. Use a PDF exported from Word / Google Docs — scanned images can't be read.
         </p>
-        <form onSubmit={upload} className="upload-row">
-          <input ref={fileRef} type="file" accept="application/pdf,.pdf" required />
-          <button className="btn btn-primary" disabled={uploading}>
-            {uploading ? "Analyzing resume and searching jobs…" : "Upload & find jobs"}
-          </button>
-        </form>
-        {resume?.live_jobs_found != null && (
-          <p className="ok">
-            Searched Wanted and JobKorea for your skills: {resume.live_jobs_found} new posting(s) added.{" "}
-            <Link to="/recommendations">See your matches →</Link>
-          </p>
+        {uploading ? (
+          <UploadProgress />
+        ) : (
+          <form onSubmit={upload} className="upload-form">
+            <label
+              className={`dropzone ${dragging ? "dragging" : ""} ${fileName ? "has-file" : ""}`}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragging(true);
+              }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragging(false);
+                if (e.dataTransfer.files[0]) {
+                  fileRef.current.files = e.dataTransfer.files;
+                  setFileName(e.dataTransfer.files[0].name);
+                }
+              }}
+            >
+              <span className="dz-icon">
+                <Icon name="upload" />
+              </span>
+              <strong>{fileName || "Drop your PDF here"}</strong>
+              <span className="muted small">{fileName ? "Ready to analyze" : "or tap to choose a file"}</span>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="application/pdf,.pdf"
+                required
+                onChange={(e) => setFileName(e.target.files?.[0]?.name || "")}
+              />
+            </label>
+            <button className="btn btn-primary btn-lg" disabled={!fileName}>
+              Upload & find jobs <Icon name="arrow" />
+            </button>
+          </form>
+        )}
+        {resume?.live_jobs_found != null && !uploading && (
+          <div className="success reveal">
+            <strong>{resume.live_jobs_found} new postings found</strong> on Wanted, Jumpit and JobKorea for your skills.
+            <Link to="/recommendations" className="btn btn-primary">
+              See your matches <Icon name="arrow" />
+            </Link>
+          </div>
         )}
       </section>
 
@@ -122,6 +158,27 @@ export default function ResumePage() {
 
       <DangerZone />
     </div>
+  );
+}
+
+const UPLOAD_STEPS = ["Reading your PDF", "Extracting skills", "Searching Wanted, Jumpit, JobKorea", "Scoring matches"];
+
+/** The upload is one request; the steps advance on a timer to show what the server is doing. */
+function UploadProgress() {
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setStep((s) => Math.min(s + 1, UPLOAD_STEPS.length - 1)), 1600);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <ol className="progress-steps" aria-live="polite">
+      {UPLOAD_STEPS.map((s, i) => (
+        <li key={s} className={i < step ? "done" : i === step ? "active" : ""}>
+          <span className="ps-dot">{i < step ? <Icon name="check" /> : i === step ? <span className="spinner" /> : null}</span>
+          {s}
+        </li>
+      ))}
+    </ol>
   );
 }
 

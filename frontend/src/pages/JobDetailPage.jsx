@@ -30,7 +30,7 @@ export default function JobDetailPage() {
       <button className="link-btn muted small" onClick={() => navigate(-1)}>
         ← Back
       </button>
-      <section className="card">
+      <section className="card reveal">
         <div className="job-head">
           <div>
             <h1>{job.title}</h1>
@@ -41,7 +41,7 @@ export default function JobDetailPage() {
 
         {match && (
           <div className="match-box">
-            <ScoreRing score={match.score} />
+            <ScoreRing score={match.score} size="lg" />
             <div className="match-detail">
               <div className="breakdown small">
                 Skill overlap {Math.round(match.skill_overlap * 100)}% · Text similarity{" "}

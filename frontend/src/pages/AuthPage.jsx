@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { api } from "../api.js";
 import { useAuth } from "../auth.jsx";
-import { ErrorBox } from "../components/common.jsx";
+import { ErrorBox, Icon } from "../components/common.jsx";
 
 export default function AuthPage({ mode }) {
   const isRegister = mode === "register";
@@ -34,10 +34,36 @@ export default function AuthPage({ mode }) {
 
   return (
     <div className="auth-wrap">
+      <section className="hero">
+        <span className="eyebrow">AI job search for Korea</span>
+        <h1 className="hero-title">
+          Your resume in.
+          <br />
+          <span className="grad">Live matches out.</span>
+        </h1>
+        <p className="hero-sub">
+          Upload a PDF. We read your skills, search Wanted, Jumpit and JobKorea for fresh internships and entry-level
+          roles, and rank them with a score you can understand.
+        </p>
+        <ol className="flowline">
+          {["Read resume", "Search 3 job sites", "Score & skill gap"].map((s, i) => (
+            <li key={s} style={{ "--i": i }}>
+              <span>{i + 1}</span>
+              {s}
+            </li>
+          ))}
+        </ol>
+        <div className="sites">
+          {["Wanted", "Jumpit", "JobKorea"].map((s) => (
+            <span key={s}>{s}</span>
+          ))}
+        </div>
+      </section>
+
       <div className="card auth-card">
-        <h1>{isRegister ? "Create an account" : "Log in"}</h1>
-        <p className="muted">
-          Find internships and entry-level jobs in Korea that match your resume — and see which skills to learn next.
+        <h2>{isRegister ? "Create your account" : "Welcome back"}</h2>
+        <p className="muted small">
+          {isRegister ? "Free. Your resume is visible only to you." : "Log in to see your matches."}
         </p>
         <form onSubmit={submit} className="form">
           {isRegister && (
@@ -62,8 +88,9 @@ export default function AuthPage({ mode }) {
             />
           </label>
           <ErrorBox error={error} />
-          <button className="btn btn-primary" disabled={busy}>
-            {busy ? "…" : isRegister ? "Sign up" : "Log in"}
+          <button className="btn btn-primary btn-lg" disabled={busy}>
+            {busy ? <span className="spinner" /> : isRegister ? "Create account" : "Log in"}
+            {!busy && <Icon name="arrow" />}
           </button>
         </form>
         <p className="muted small">

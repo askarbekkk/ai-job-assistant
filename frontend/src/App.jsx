@@ -1,5 +1,6 @@
-import { NavLink, Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { NavLink, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { AuthProvider, RequireAuth, useAuth } from "./auth.jsx";
+import { Icon } from "./components/common.jsx";
 import AuthPage from "./pages/AuthPage.jsx";
 import ResumePage from "./pages/ResumePage.jsx";
 import JobsPage from "./pages/JobsPage.jsx";
@@ -7,41 +8,83 @@ import JobDetailPage from "./pages/JobDetailPage.jsx";
 import RecommendationsPage from "./pages/RecommendationsPage.jsx";
 import SavedPage from "./pages/SavedPage.jsx";
 
+function navItems(user) {
+  return [
+    user && { to: "/resume", label: "Resume", icon: "file" },
+    user && { to: "/recommendations", label: "Matches", icon: "spark" },
+    { to: "/jobs", label: "All jobs", icon: "briefcase" },
+    user && { to: "/saved", label: "Saved", icon: "star" },
+  ].filter(Boolean);
+}
+
+function Brand() {
+  return (
+    <NavLink to="/" className="brand" aria-label="JobMatch home">
+      <span className="brand-mark">
+        <Icon name="check" />
+      </span>
+      <span>
+        JobMatch<span className="brand-tld">.kr</span>
+      </span>
+    </NavLink>
+  );
+}
+
 function Header() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   return (
     <header className="header">
-      <NavLink to="/" className="brand">
-        JobMatch<span>.kr</span>
-      </NavLink>
-      <nav>
-        {user && <NavLink to="/resume">1 · Resume</NavLink>}
-        {user && <NavLink to="/recommendations">2 · Recommendations</NavLink>}
-        <NavLink to="/jobs">All jobs</NavLink>
-        {user && <NavLink to="/saved">Saved</NavLink>}
-      </nav>
-      <div className="header-user">
-        {user ? (
-          <>
-            <span className="muted">{user.name}</span>
-            <button
-              className="btn btn-ghost"
-              onClick={() => {
-                signOut();
-                navigate("/login");
-              }}
-            >
-              Log out
-            </button>
-          </>
-        ) : (
-          <NavLink to="/login" className="btn btn-primary">
-            Log in
-          </NavLink>
-        )}
+      <div className="header-inner">
+        <Brand />
+        <nav className="topnav">
+          {navItems(user).map((n) => (
+            <NavLink key={n.to} to={n.to}>
+              {n.label}
+            </NavLink>
+          ))}
+        </nav>
+        <div className="header-user">
+          {user ? (
+            <>
+              <span className="avatar" title={user.name}>
+                {user.name?.[0]?.toUpperCase() ?? "?"}
+              </span>
+              <button
+                className="btn btn-ghost btn-icon"
+                aria-label="Log out"
+                title="Log out"
+                onClick={() => {
+                  signOut();
+                  navigate("/login");
+                }}
+              >
+                <Icon name="logout" />
+              </button>
+            </>
+          ) : (
+            <NavLink to="/login" className="btn btn-primary">
+              Log in
+            </NavLink>
+          )}
+        </div>
       </div>
     </header>
+  );
+}
+
+/** Phone navigation: a tab bar at the bottom, within thumb reach. */
+function TabBar() {
+  const { user } = useAuth();
+  return (
+    <nav className="tabbar" aria-label="Main">
+      {navItems(user).map((n) => (
+        <NavLink key={n.to} to={n.to}>
+          <Icon name={n.icon} />
+          <span>{n.label}</span>
+        </NavLink>
+      ))}
+    </nav>
   );
 }
 
@@ -52,22 +95,32 @@ function Home() {
 }
 
 export default function App() {
+  const location = useLocation();
   return (
     <AuthProvider>
+      <div className="aurora" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
       <Header />
       <main className="container">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<AuthPage mode="login" />} />
-          <Route path="/register" element={<AuthPage mode="register" />} />
-          <Route path="/jobs" element={<JobsPage />} />
-          <Route path="/jobs/:jobId" element={<JobDetailPage />} />
-          <Route path="/resume" element={<RequireAuth><ResumePage /></RequireAuth>} />
-          <Route path="/recommendations" element={<RequireAuth><RecommendationsPage /></RequireAuth>} />
-          <Route path="/saved" element={<RequireAuth><SavedPage /></RequireAuth>} />
-          <Route path="*" element={<p>Page not found.</p>} />
-        </Routes>
+        {/* keyed by path so every page change plays the enter animation */}
+        <div className="page" key={location.pathname}>
+          <Routes location={location}>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<AuthPage mode="login" />} />
+            <Route path="/register" element={<AuthPage mode="register" />} />
+            <Route path="/jobs" element={<JobsPage />} />
+            <Route path="/jobs/:jobId" element={<JobDetailPage />} />
+            <Route path="/resume" element={<RequireAuth><ResumePage /></RequireAuth>} />
+            <Route path="/recommendations" element={<RequireAuth><RecommendationsPage /></RequireAuth>} />
+            <Route path="/saved" element={<RequireAuth><SavedPage /></RequireAuth>} />
+            <Route path="*" element={<p>Page not found.</p>} />
+          </Routes>
+        </div>
       </main>
+      <TabBar />
     </AuthProvider>
   );
 }

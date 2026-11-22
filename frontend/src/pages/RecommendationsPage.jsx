@@ -1,7 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api.js";
-import { ErrorBox, FilterBar, JobCard, ScoreRing, SkillChips, useFilters } from "../components/common.jsx";
+import {
+  ErrorBox,
+  FilterBar,
+  JobCard,
+  ScoreRing,
+  SkeletonCards,
+  SkillChips,
+  useCountUp,
+  useFilters,
+} from "../components/common.jsx";
 
 export default function RecommendationsPage() {
   const [filters, setFilters] = useFilters();
@@ -40,22 +49,27 @@ export default function RecommendationsPage() {
     );
   }
 
+  const live = data?.results.filter((m) => /wanted|jobkorea|jumpit/i.test(m.job.source_url)).length ?? 0;
+
   return (
     <div className="stack">
-      <div className="row-between">
-        <h1>Top matches for you</h1>
-        {data && (
-          <span className="muted small">
-            {data.total_candidates} postings after filters · {data.elapsed_ms} ms
-          </span>
-        )}
-      </div>
+      <section className="page-head">
+        <div>
+          <span className="eyebrow">Your top {data?.results.length || 10}</span>
+          <h1>Matches for you</h1>
+        </div>
+        <div className="stats">
+          <Stat label="best score" value={data?.results[0]?.score ?? 0} />
+          <Stat label="postings checked" value={data?.total_candidates ?? 0} />
+          <Stat label="live in top list" value={live} />
+        </div>
+      </section>
       <FilterBar filters={filters} onChange={setFilters} />
       <ErrorBox error={error} />
 
       <div className="two-col">
         <div className="stack">
-          {loading && <p className="muted">Calculating matches…</p>}
+          {loading && <SkeletonCards count={4} />}
           {!loading && data?.results.length === 0 && (
             <div className="card empty">No postings match these filters. Try widening them.</div>
           )}
@@ -83,10 +97,20 @@ export default function RecommendationsPage() {
   );
 }
 
+function Stat({ label, value }) {
+  const shown = useCountUp(value);
+  return (
+    <div className="stat">
+      <strong>{Math.round(shown)}</strong>
+      <span>{label}</span>
+    </div>
+  );
+}
+
 function MatchCard({ rank, match, onToggleSave }) {
   const total = match.matched_skills.length + match.missing_skills.length;
   return (
-    <JobCard job={match.job}>
+    <JobCard job={match.job} index={rank - 1}>
       <div className="match-body">
         <div className="match-score">
           <span className="rank">#{rank}</span>
@@ -130,8 +154,8 @@ function SkillGap({ items, total }) {
         <p className="muted">No gaps — great fit!</p>
       ) : (
         <ul className="gap-list">
-          {items.map((i) => (
-            <li key={i.skill}>
+          {items.map((i, n) => (
+            <li key={i.skill} style={{ "--i": n }}>
               <span>{i.skill}</span>
               <span className="bar">
                 <span style={{ width: `${(i.count / max) * 100}%` }} />

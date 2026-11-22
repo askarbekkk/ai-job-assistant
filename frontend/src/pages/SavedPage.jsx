@@ -25,8 +25,8 @@ export default function SavedPage() {
           Nothing saved yet. <Link to="/recommendations">Browse your matches</Link> and press ☆ Save.
         </div>
       )}
-      {items?.map(({ job, saved_at }) => (
-        <JobCard key={job.job_id} job={job}>
+      {items?.map(({ job, saved_at }, i) => (
+        <JobCard key={job.job_id} job={job} index={i}>
           <div className="row-between">
             <SkillChips skills={job.required_skills} />
             <div className="row">
