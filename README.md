@@ -20,7 +20,7 @@ docker build -t job-assistant .
 docker run -p 7860:7860 -e TAVILY_API_KEY=... -e JWT_SECRET=... job-assistant   # http://localhost:7860
 ```
 
-The image serves the API and the built React app together, loads the sample postings on start, and uses keyword extraction and TF-IDF, so it needs no GPU or model download.
+The image serves the API and the built React app together, loads `data/jobs_live.csv` (a snapshot of real postings from Wanted, Jumpit and JobKorea; refresh with `python -m scripts.snapshot_live ../data/jobs_live.csv`) on start, and uses keyword extraction and TF-IDF, so it needs no GPU or model download.
 
 ## Quick start (Windows)
 

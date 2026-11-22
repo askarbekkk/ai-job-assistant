@@ -16,7 +16,8 @@ COPY backend/ .
 COPY data/ /app/data/
 COPY --from=web /web/dist ./static
 
-# SQLite in /tmp: the demo database is rebuilt from the sample CSV on every start.
+# SQLite in /tmp: rebuilt on every start from data/jobs_live.csv, a snapshot of real postings
+# (refresh: python -m scripts.snapshot_live ../data/jobs_live.csv); uploads add fresh ones on top.
 # Keyword skill extraction and TF-IDF keep the image small and fast (no GPU, no model download).
 ENV DATABASE_URL=sqlite:////tmp/jobs.db \
     UPLOAD_DIR=/tmp/uploads \
@@ -26,5 +27,5 @@ ENV DATABASE_URL=sqlite:////tmp/jobs.db \
     PORT=7860
 EXPOSE 7860
 
-CMD python -m scripts.import_jobs ../data/jobs_sample.csv --spot-check-rate 0 && \
+CMD python -m scripts.import_jobs ../data/jobs_live.csv --spot-check-rate 0 && \
     uvicorn app.main:app --host 0.0.0.0 --port ${PORT}

@@ -156,22 +156,24 @@ def to_job_row(result: dict) -> dict | None:
     }
 
 
+def find_postings(skills: list[str]) -> list[dict]:
+    """Web search for postings matching `skills`, as job rows (not yet stored)."""
+    queries = build_queries(skills)
+    with ThreadPoolExecutor(len(queries)) as pool:
+        results = [r for batch in pool.map(lambda q: _search(*q), queries) for r in batch]
+    return [row for row in map(to_job_row, results) if row]
+
+
 def search_and_store(db: Session, skills: list[str]) -> int:
     """Search the web for postings matching `skills` and upsert them. Returns how many are new."""
     if not enabled() or not skills:
         return 0
-    queries = build_queries(skills)
-    with ThreadPoolExecutor(len(queries)) as pool:
-        results = [r for batch in pool.map(lambda q: _search(*q), queries) for r in batch]
 
     # Sites re-post the same job under new ids, so (company, title) is the identity.
     same = lambda company, title: f"{company}|{title}".lower()  # noqa: E731
     known = {same(c, t): i for i, c, t in db.query(Job.job_id, Job.company, Job.title)}
     rows = {}
-    for res in results:
-        row = to_job_row(res)
-        if row is None:
-            continue
+    for row in find_postings(skills):
         key = same(row["company"], row["title"])
         row["job_id"] = known.get(key, row["job_id"])
         if key not in rows:
